@@ -1,45 +1,50 @@
+@import url("https://fonts.googleapis.com/css?family=Barlow|Tomorrow:400,700&display=swap");
+
+
+
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: Tomorrow, sans-serif;
+
+  font-size: .85rem;
+
+  
   background-color: #141414;
   color: #fff;
 }
 
 header {
+  text-transform: uppercase;
   text-align: center;
   color: #fff;
-  text-shadow: 0 0 10px #00ffff;
-  padding: 40px;
+  text-shadow: 0 0 10px #40E0D0;
+  padding: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 nav {
-	
-  margin: 10px 50px;
-  display: flex;
+  text-transform: uppercase;
+
+  margin:  5vh;
+  
   justify-content: center;
-  background-color: #00ffff;
-  padding: 10px;
+  background-color: #40E0D0;
+  padding: 10vh 25vh;
   border-radius: 20px;
 }
 
-nav ul {
-  list-style: none;
-}
 
 nav a {
   color: #fff;
   text-decoration: none;
-  padding: 10px 30px;
-  margin: 20px;
+  padding: 2vh 2vh;
+  margin: 2vh;
   transition: all 0.2s ease-in-out;
   border-radius: 20px;
   background-color: #333;
 }
-nav li {
-  padding: 10px 20px;
-}
+
 nav a:hover {
   background-color: #555;
 }
@@ -54,16 +59,23 @@ main {
 
 section {
   width: 80%;
-  margin: 10px auto;
+  margin: 0px 20px;
+  margin-bottom: 60px;
   text-align: center;
   background-color: #1a1a1a;
   color: #fff;
-  box-shadow: 0 0 10px #00ffff;
+  box-shadow: 0 0 10px #40E0D0;
   transition: all 0.2s ease-in-out;
   padding: 20px;
   border-radius: 20px;
 }
+section h2 {
+  text-transform: uppercase;
+}
 
+section:hover h2 {
+  color:#40E0D0;
+}
 section video {
   max-width: 100%;
   border-radius: 20px;
@@ -88,9 +100,9 @@ footer {
 
 
 #logo {
-  height: 100px;
   width: 100px;
-  margin-left: 10px;
+  margin-right: 20px;
+
 }
 
 
@@ -98,10 +110,9 @@ header h1 {
   display: inline-block;
 }
 #introduction {
-  padding: 10px 30px;
-  margin: 20px;
+  padding: 10px 25px;
+  margin: 10px 20px;
   font-size: 1.2rem;
-  fontweight: lighter;
 text-align: center;
 margin-top: 10px;
 }

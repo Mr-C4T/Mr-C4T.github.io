@@ -76,6 +76,11 @@ section h2 {
 section a {
   color:#dafd10;
 }
+
+section a:visited {
+  color:#dafd10;
+}
+
 section:hover h2 {
   color:#40E0D0;
   color:#dafd10;

@@ -15,7 +15,7 @@ body {
 header {
   text-transform: uppercase;
   text-align: center;
-  color: #fff;
+  color:#dafd10;
   text-shadow: 0 0 10px #40E0D0;
   padding: 20px;
   display: flex;
@@ -73,6 +73,9 @@ section h2 {
   text-transform: uppercase;
 }
 
+section a {
+  color:#dafd10;
+}
 section:hover h2 {
   color:#40E0D0;
   color:#dafd10;
@@ -97,7 +100,9 @@ footer {
   color: #fff;
   border-radius: 20px;
 }
-
+footer a {
+  color:#dafd10;
+}
 
 
 #logo {

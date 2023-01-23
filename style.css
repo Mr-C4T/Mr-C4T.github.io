@@ -39,7 +39,7 @@ section {
   margin: 0px 20px;
   margin-bottom: 60px;
   text-align: center;
-  background-color: #1a1a1a;
+  background-color: #222;
   color: #fff;
   box-shadow: 0 0 10px #00ffef;
   transition: all 0.2s ease-in-out;
@@ -79,6 +79,8 @@ section img {
 footer {
   text-align: center;
   padding: 40px;
+  margin: 40px;
+  margin-top: 0px;
   background-color: #222;
   color: #fff;
   border-radius: 20px;

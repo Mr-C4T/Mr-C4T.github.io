@@ -75,6 +75,7 @@ section h2 {
 
 section:hover h2 {
   color:#40E0D0;
+  color:#dd00ff;
 }
 section video {
   max-width: 100%;

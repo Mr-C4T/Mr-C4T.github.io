@@ -3,9 +3,6 @@
 
 body {
   font-family: Tomorrow, sans-serif;
-
-
-  
   background-color: #141414;
   color: #fff;
 }
@@ -132,7 +129,6 @@ margin-top: 10px;
   cursor: pointer;
   position: relative;
   font-family: Tomorrow, sans-serif;
-  font-size: 1rem;
   text-transform: uppercase;
   color: var(--black-color);
   clip-path: polygon(92% 0, 100% 25%, 100% 100%, 8% 100%, 0% 75%, 0 0);
@@ -144,6 +140,7 @@ margin-top: 10px;
   align-items: center;
   justify-content: center;
   position: absolute;
+  color: var(--black-color);
   top: 2px;
   left: 2px;
   right: 2px;
@@ -160,6 +157,7 @@ margin-top: 10px;
   right: 8%;
   padding: 0 5px;
   background-color: var(--yellow-color);
+  color: var(--black-color);
   z-index: 3;
   border-left: 1px solid var(--blue-color);
 }

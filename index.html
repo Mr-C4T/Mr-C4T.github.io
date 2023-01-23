@@ -10,32 +10,39 @@
   <h1>Mr-Cat</h1>
 
 </header>
+
 <nav>
 
-  <button class="btn">
+  <button class="btn"><a href="#projet">
     <span class="btn__content">Projects</span>
     <span class="btn__glitch"></span>
     <span class="btn__label">r25</span>
-  </button> 
+  </a></button> 
 
- <button class="btn">
-    <span class="btn__content">Contact</span>
+
+
+  <button class="btn"><a href="#contacts">
+    <span class="btn__content">Contacts</span>
     <span class="btn__glitch"></span>
     <span class="btn__label">r25</span>
-  </button> 
-  
-  <button class="btn">
-    <span class="btn__content">Shop</span>
+  </a></button> 
+
+
+
+  <button class="btn"><a href="#project">
+    <span class="btn__content">Projects</span>
     <span class="btn__glitch"></span>
     <span class="btn__label">r25</span>
-  </button> 
-  </nav>
+  </a></button> 
+
+</nav>
+
   <div id="introduction">
     <p>Bienvenue sur mon site web dédié à présenter mes projets d'informatique, d'éléctronique, de robotique et d'IA.</p>
     <p>Découvrez ici mes dernière réalisation et projets en cours.</p>
   </div>
 
-    <main>
+    <main id="projet">
       <section id="projet2">
         <h2>Synapse.py</h2>
         <p>Réalisation d'une mini librairie python utilisant Matplotlib pour la visualisation de modèle de réseaux de neurones (sklearn).</p>
@@ -45,7 +52,12 @@
         <h2>BrainPCB</h2>
         <p>Petit shield Arduino permettant de cotroller 8 servos moteurs désigné sur EasyEDA et fabriquée maison grace ma découpeuse laser en utilisant la méthode de gravure chimique</p>
         <img src="img/carte.jpg" alt="Image du projet 1">
-      
+        </section>  
+        <section id="projet2">
+          <h2>Jarvis.py</h2>
+          <p>Assistant vocale fonctionnant en local sur une raspberry pi 3 grace a la librairie python Picovoice.</p>
+          <img src="img/jarvis.jpg" alt="Image du projet 2">
+
       </section>
       <section id="projet3">
         <h2>Site web BDE</h2>
@@ -66,8 +78,8 @@
 		</video>
       </section>
     </main>
-    <footer>
-      <p>N'hesitez pas a me contacter par mail si vous souhaitez que je réalise vos projets: <a href="mailto:bato470@gmail.com"><b>bato470@gmail.com</b></a></p>
+    <footer id="contacts">
+      <p>N'hesitez pas à me contacter par mail si vous avez des questions ou si vous avez besoin d'aide pour vos projets: <a href="mailto:bato470@gmail.com"><b>bato470@gmail.com</b></a></p>
     </footer>
     <script src="script.js"></script>
   </body>

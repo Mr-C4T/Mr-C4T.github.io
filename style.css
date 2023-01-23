@@ -1,0 +1,107 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #141414;
+  color: #fff;
+}
+
+header {
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 0 10px #00ffff;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+nav {
+	
+  margin: 10px 50px;
+  display: flex;
+  justify-content: center;
+  background-color: #00ffff;
+  padding: 10px;
+  border-radius: 20px;
+}
+
+nav ul {
+  list-style: none;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 30px;
+  margin: 20px;
+  transition: all 0.2s ease-in-out;
+  border-radius: 20px;
+  background-color: #333;
+}
+nav li {
+  padding: 10px 20px;
+}
+nav a:hover {
+  background-color: #555;
+}
+
+main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 40px;
+}
+
+
+section {
+  width: 80%;
+  margin: 10px auto;
+  text-align: center;
+  background-color: #1a1a1a;
+  color: #fff;
+  box-shadow: 0 0 10px #00ffff;
+  transition: all 0.2s ease-in-out;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+section video {
+  max-width: 100%;
+  border-radius: 20px;
+}
+section:hover {
+  transform: scale(1.1);
+}
+
+section img {
+  max-width: 100%;
+  border-radius: 20px;
+}
+
+footer {
+  text-align: center;
+  padding: 40px;
+  background-color: #222;
+  color: #fff;
+  border-radius: 20px;
+}
+
+
+
+#logo {
+  height: 100px;
+  width: 100px;
+  margin-left: 10px;
+}
+
+
+header h1 {
+  display: inline-block;
+}
+#introduction {
+  padding: 10px 30px;
+  margin: 20px;
+  font-size: 1.2rem;
+  fontweight: lighter;
+text-align: center;
+margin-top: 10px;
+}

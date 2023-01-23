@@ -4,7 +4,6 @@
 body {
   font-family: Tomorrow, sans-serif;
 
-  font-size: .85rem;
 
   
   background-color: #141414;
@@ -133,7 +132,7 @@ margin-top: 10px;
   cursor: pointer;
   position: relative;
   font-family: Tomorrow, sans-serif;
-  font-size: .85rem;
+  font-size: 1rem;
   text-transform: uppercase;
   color: var(--black-color);
   clip-path: polygon(92% 0, 100% 25%, 100% 100%, 8% 100%, 0% 75%, 0 0);

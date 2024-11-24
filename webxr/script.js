@@ -9,6 +9,17 @@ let xrReferenceSpace = null;
 // Get elements from the DOM
 const startARButton = document.getElementById('start-ar-button');
 const statusElement = document.getElementById('status');
+const indicatorElement = document.createElement('div'); // Visual indicator
+
+// Add the visual indicator to the page
+indicatorElement.style.width = "20px";
+indicatorElement.style.height = "20px";
+indicatorElement.style.borderRadius = "50%";
+indicatorElement.style.backgroundColor = "red"; // Default: No controller
+indicatorElement.style.margin = "20px auto";
+indicatorElement.style.boxShadow = "0px 0px 10px rgba(255, 0, 0, 0.8)";
+indicatorElement.style.display = "inline-block";
+document.getElementById('webxr-container').appendChild(indicatorElement);
 
 // Listen for the Start AR button click
 startARButton.addEventListener('click', startAR);
@@ -41,8 +52,16 @@ async function startAR() {
     // Get the reference space for tracking
     xrReferenceSpace = await xrSession.requestReferenceSpace('local');
 
-    // Check for available controllers and start tracking
+    // Start monitoring input sources (controllers)
     startControllerTracking();
+
+    // Verify controllers and log initial data
+    const initialPositionAvailable = await verifyControllerPosition();
+    if (!initialPositionAvailable) {
+      statusElement.textContent = "Controller position unavailable. Please adjust or reconnect.";
+      console.error("No valid position data from controller.");
+      return;
+    }
 
     // Update status message
     statusElement.textContent = "AR session started, collecting data...";
@@ -63,23 +82,49 @@ function onSessionEnd() {
   clearInterval(timer);
   downloadCSV();
   statusElement.textContent = "AR session ended. CSV generated.";
+  indicatorElement.style.backgroundColor = "red"; // No controller
+  indicatorElement.style.boxShadow = "0px 0px 10px rgba(255, 0, 0, 0.8)";
 }
 
-async function startControllerTracking() {
-  // Get the list of input sources (controllers or devices)
+function startControllerTracking() {
+  // Listen for input sources and detect controllers
   xrSession.addEventListener('inputsourceschange', () => {
-    // Update controller when new input sources are detected
     const inputSources = Array.from(xrSession.inputSources);
     controller = inputSources.find((source) => source.targetRayMode === 'tracked-pointer');
 
-    if (!controller) {
-      console.log("No controller detected.");
-      statusElement.textContent = "No controller detected. Please connect a controller.";
-    } else {
+    if (controller) {
       console.log("Controller detected:", controller);
       statusElement.textContent = "Controller detected. Collecting data...";
+      indicatorElement.style.backgroundColor = "limegreen"; // Controller active
+      indicatorElement.style.boxShadow = "0px 0px 20px rgba(50, 255, 50, 0.8)";
+    } else {
+      console.log("No controller detected.");
+      statusElement.textContent = "No controller detected. Please connect a controller.";
+      indicatorElement.style.backgroundColor = "red"; // No controller
+      indicatorElement.style.boxShadow = "0px 0px 10px rgba(255, 0, 0, 0.8)";
     }
   });
+}
+
+async function verifyControllerPosition() {
+  if (!controller || !controller.targetRaySpace) {
+    console.log("No valid controller detected.");
+    return false;
+  }
+
+  // Check if the controller's position is trackable
+  const pose = await xrSession.requestAnimationFrame(() => {
+    const viewerPose = xrSession.getViewerPose(xrReferenceSpace);
+    return viewerPose?.views[0]?.transform?.position ?? null;
+  });
+
+  if (!pose) {
+    console.log("Controller position is not available.");
+    return false;
+  }
+
+  console.log("Controller initial position verified:", pose);
+  return true;
 }
 
 function startTimer() {
@@ -96,21 +141,20 @@ function startTimer() {
 }
 
 function collectControllerData() {
-  if (!controller || !controller.gamepad) {
+  if (!controller || !controller.targetRaySpace) {
     console.log("No controller data available.");
     return;
   }
 
-  // Use the gamepad's pose data to track position
-  const pose = controller.targetRaySpace;
-  const timestamp = Date.now();
-
-  // Check if a pose is available
+  // Request the current pose of the controller
   const frameOfReference = xrSession.getViewerPose(xrReferenceSpace);
-  if (frameOfReference && frameOfReference.views[0].transform) {
+  if (frameOfReference && frameOfReference.views[0]?.transform?.position) {
     const position = frameOfReference.views[0].transform.position;
+    const timestamp = Date.now();
     csvData += `${timestamp},${position.x},${position.y},${position.z}\n`;
     console.log(`Logged data: ${timestamp}, ${position.x}, ${position.y}, ${position.z}`);
+  } else {
+    console.log("No valid position data.");
   }
 }
 
@@ -126,6 +170,4 @@ function downloadCSV() {
 function onXRFrame(t, frame) {
   // Request the next animation frame
   xrSession.requestAnimationFrame(onXRFrame);
-
-  // Render logic could go here if needed
 }

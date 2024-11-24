@@ -1,8 +1,7 @@
-// Ensure WebXR Polyfill is loaded, or include it in the HTML file (before this script)
-
 // Declare necessary variables
 let xrSession = null;
-let handTrackingData = [];
+let controller = null;
+let controllerData = [];
 let timer = null;
 let csvData = "timestamp,x,y,z\n";
 let xrReferenceSpace = null;
@@ -30,10 +29,10 @@ async function startAR() {
     return;
   }
 
-  // Try to start an immersive AR session with hand-tracking
+  // Try to start an immersive AR session with controller tracking
   try {
     xrSession = await navigator.xr.requestSession('immersive-ar', {
-      requiredFeatures: ['hand-tracking'],
+      requiredFeatures: ['local'],
     });
 
     // Listen for session end event
@@ -42,8 +41,8 @@ async function startAR() {
     // Get the reference space for tracking
     xrReferenceSpace = await xrSession.requestReferenceSpace('local');
 
-    // Start hand tracking and data collection
-    startHandTracking();
+    // Check for available controllers and start tracking
+    startControllerTracking();
 
     // Update status message
     statusElement.textContent = "AR session started, collecting data...";
@@ -51,9 +50,8 @@ async function startAR() {
     // Start the timer to collect data every 0.5s for 50s
     startTimer();
 
-    // Update the render state and start the XR frame loop
-    xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, glContext) });
-    onXRFrame();
+    // Start the XR frame loop
+    xrSession.requestAnimationFrame(onXRFrame);
   } catch (err) {
     console.error('Failed to start AR session:', err);
     statusElement.textContent = "Failed to start AR session.";
@@ -67,32 +65,21 @@ function onSessionEnd() {
   statusElement.textContent = "AR session ended. CSV generated.";
 }
 
-async function startHandTracking() {
-  // Check if hand tracking is supported on the device
-  const isHandTrackingSupported = await navigator.xr.isHandTrackingSupported();
-  if (!isHandTrackingSupported) {
-    console.log("Hand tracking is not supported.");
-    statusElement.textContent = "Hand tracking not supported on this device.";
-    return;
-  }
+async function startControllerTracking() {
+  // Get the list of input sources (controllers or devices)
+  xrSession.addEventListener('inputsourceschange', () => {
+    // Update controller when new input sources are detected
+    const inputSources = Array.from(xrSession.inputSources);
+    controller = inputSources.find((source) => source.targetRayMode === 'tracked-pointer');
 
-  // Add an event listener for hand tracking data
-  xrSession.addEventListener('selectstart', onHandTrackingData);
-}
-
-function onHandTrackingData(event) {
-  // Log and extract hand tracking data (position)
-  const handData = event.data; // Get the hand position data
-  const timestamp = Date.now();
-  const handPosition = {
-    timestamp,
-    x: handData.position.x,
-    y: handData.position.y,
-    z: handData.position.z,
-  };
-
-  // Store the hand position data
-  handTrackingData.push(handPosition);
+    if (!controller) {
+      console.log("No controller detected.");
+      statusElement.textContent = "No controller detected. Please connect a controller.";
+    } else {
+      console.log("Controller detected:", controller);
+      statusElement.textContent = "Controller detected. Collecting data...";
+    }
+  });
 }
 
 function startTimer() {
@@ -102,26 +89,43 @@ function startTimer() {
     if (elapsed >= 50) {
       clearInterval(timer);
       downloadCSV();
+    } else {
+      collectControllerData();
     }
   }, 500);
 }
 
-function downloadCSV() {
-  // Format hand tracking data into CSV
-  handTrackingData.forEach((data) => {
-    csvData += `${data.timestamp},${data.x},${data.y},${data.z}\n`;
-  });
+function collectControllerData() {
+  if (!controller || !controller.gamepad) {
+    console.log("No controller data available.");
+    return;
+  }
 
+  // Use the gamepad's pose data to track position
+  const pose = controller.targetRaySpace;
+  const timestamp = Date.now();
+
+  // Check if a pose is available
+  const frameOfReference = xrSession.getViewerPose(xrReferenceSpace);
+  if (frameOfReference && frameOfReference.views[0].transform) {
+    const position = frameOfReference.views[0].transform.position;
+    csvData += `${timestamp},${position.x},${position.y},${position.z}\n`;
+    console.log(`Logged data: ${timestamp}, ${position.x}, ${position.y}, ${position.z}`);
+  }
+}
+
+function downloadCSV() {
   // Create a Blob for the CSV data
   const blob = new Blob([csvData], { type: 'text/csv' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
-  link.download = 'hand_tracking_data.csv';
+  link.download = 'controller_tracking_data.csv';
   link.click();
 }
 
-function onXRFrame() {
+function onXRFrame(t, frame) {
   // Request the next animation frame
   xrSession.requestAnimationFrame(onXRFrame);
-  // Additional rendering logic could go here (for now it's left empty)
+
+  // Render logic could go here if needed
 }

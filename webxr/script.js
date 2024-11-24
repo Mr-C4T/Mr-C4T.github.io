@@ -1,25 +1,22 @@
 // Declare necessary variables
 let xrSession = null;
+let gl = null;
+let xrReferenceSpace = null;
 let controller = null;
 let controllerData = [];
 let timer = null;
 let csvData = "timestamp,x,y,z\n";
-let xrReferenceSpace = null;
 
 // Get elements from the DOM
 const startARButton = document.getElementById('start-ar-button');
 const statusElement = document.getElementById('status');
-const indicatorElement = document.createElement('div'); // Visual indicator
 
-// Add the visual indicator to the page
-indicatorElement.style.width = "20px";
-indicatorElement.style.height = "20px";
-indicatorElement.style.borderRadius = "50%";
-indicatorElement.style.backgroundColor = "red"; // Default: No controller
-indicatorElement.style.margin = "20px auto";
-indicatorElement.style.boxShadow = "0px 0px 10px rgba(255, 0, 0, 0.8)";
-indicatorElement.style.display = "inline-block";
-document.getElementById('webxr-container').appendChild(indicatorElement);
+// Set up WebGL rendering
+function setupWebGL(canvas) {
+  gl = canvas.getContext("webgl", { xrCompatible: true });
+  const clearColor = [33 / 255, 33 / 255, 33 / 255, 1.0]; // Dark grey background
+  gl.clearColor(...clearColor);
+}
 
 // Listen for the Start AR button click
 startARButton.addEventListener('click', startAR);
@@ -40,54 +37,39 @@ async function startAR() {
     return;
   }
 
-  // Try to start an immersive AR session with controller tracking
+  // Start immersive AR session
   try {
     xrSession = await navigator.xr.requestSession('immersive-ar', {
-      requiredFeatures: ['local'],
+      requiredFeatures: ['local']
     });
 
-    // Listen for session end event
-    xrSession.addEventListener('end', onSessionEnd);
-
-    // Get the reference space for tracking
+    // Get XR reference space
     xrReferenceSpace = await xrSession.requestReferenceSpace('local');
 
-    // Start monitoring input sources (controllers)
+    // Set up WebGL for XR rendering
+    const canvas = document.createElement('canvas');
+    document.body.appendChild(canvas);
+    setupWebGL(canvas);
+
+    // Start XR rendering loop
+    xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
+    xrSession.requestAnimationFrame(onXRFrame);
+
+    // Monitor controllers
     startControllerTracking();
 
-    // Verify controllers and log initial data
-    const initialPositionAvailable = await verifyControllerPosition();
-    if (!initialPositionAvailable) {
-      statusElement.textContent = "Controller position unavailable. Please adjust or reconnect.";
-      console.error("No valid position data from controller.");
-      return;
-    }
-
-    // Update status message
-    statusElement.textContent = "AR session started, collecting data...";
-
-    // Start the timer to collect data every 0.5s for 50s
+    // Start recording timer
     startTimer();
 
-    // Start the XR frame loop
-    xrSession.requestAnimationFrame(onXRFrame);
+    statusElement.textContent = "AR session started, collecting data...";
   } catch (err) {
-    console.error('Failed to start AR session:', err);
+    console.error("Failed to start AR session:", err);
     statusElement.textContent = "Failed to start AR session.";
   }
 }
 
-function onSessionEnd() {
-  console.log('XR session ended');
-  clearInterval(timer);
-  downloadCSV();
-  statusElement.textContent = "AR session ended. CSV generated.";
-  indicatorElement.style.backgroundColor = "red"; // No controller
-  indicatorElement.style.boxShadow = "0px 0px 10px rgba(255, 0, 0, 0.8)";
-}
-
 function startControllerTracking() {
-  // Listen for input sources and detect controllers
+  // Detect input sources (controllers)
   xrSession.addEventListener('inputsourceschange', () => {
     const inputSources = Array.from(xrSession.inputSources);
     controller = inputSources.find((source) => source.targetRayMode === 'tracked-pointer');
@@ -95,43 +77,18 @@ function startControllerTracking() {
     if (controller) {
       console.log("Controller detected:", controller);
       statusElement.textContent = "Controller detected. Collecting data...";
-      indicatorElement.style.backgroundColor = "limegreen"; // Controller active
-      indicatorElement.style.boxShadow = "0px 0px 20px rgba(50, 255, 50, 0.8)";
     } else {
       console.log("No controller detected.");
       statusElement.textContent = "No controller detected. Please connect a controller.";
-      indicatorElement.style.backgroundColor = "red"; // No controller
-      indicatorElement.style.boxShadow = "0px 0px 10px rgba(255, 0, 0, 0.8)";
     }
   });
-}
-
-async function verifyControllerPosition() {
-  if (!controller || !controller.targetRaySpace) {
-    console.log("No valid controller detected.");
-    return false;
-  }
-
-  // Check if the controller's position is trackable
-  const pose = await xrSession.requestAnimationFrame(() => {
-    const viewerPose = xrSession.getViewerPose(xrReferenceSpace);
-    return viewerPose?.views[0]?.transform?.position ?? null;
-  });
-
-  if (!pose) {
-    console.log("Controller position is not available.");
-    return false;
-  }
-
-  console.log("Controller initial position verified:", pose);
-  return true;
 }
 
 function startTimer() {
   let elapsed = 0;
   timer = setInterval(() => {
     elapsed += 0.5;
-    if (elapsed >= 50) {
+    if (elapsed >= 25) {
       clearInterval(timer);
       downloadCSV();
     } else {
@@ -146,20 +103,21 @@ function collectControllerData() {
     return;
   }
 
-  // Request the current pose of the controller
-  const frameOfReference = xrSession.getViewerPose(xrReferenceSpace);
-  if (frameOfReference && frameOfReference.views[0]?.transform?.position) {
-    const position = frameOfReference.views[0].transform.position;
-    const timestamp = Date.now();
-    csvData += `${timestamp},${position.x},${position.y},${position.z}\n`;
-    console.log(`Logged data: ${timestamp}, ${position.x}, ${position.y}, ${position.z}`);
-  } else {
-    console.log("No valid position data.");
-  }
+  // Get controller's pose
+  const frame = xrSession.requestAnimationFrame(() => {
+    const pose = xrSession.getPose(controller.targetRaySpace, xrReferenceSpace);
+    if (pose) {
+      const position = pose.transform.position;
+      const timestamp = Date.now();
+      csvData += `${timestamp},${position.x},${position.y},${position.z}\n`;
+      console.log(`Logged data: ${timestamp}, ${position.x}, ${position.y}, ${position.z}`);
+    } else {
+      console.log("No valid position data from controller.");
+    }
+  });
 }
 
 function downloadCSV() {
-  // Create a Blob for the CSV data
   const blob = new Blob([csvData], { type: 'text/csv' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
@@ -170,4 +128,27 @@ function downloadCSV() {
 function onXRFrame(t, frame) {
   // Request the next animation frame
   xrSession.requestAnimationFrame(onXRFrame);
+
+  // Clear the WebGL canvas
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  // Get controller pose and render a cube
+  if (controller && controller.targetRaySpace) {
+    const pose = frame.getPose(controller.targetRaySpace, xrReferenceSpace);
+    if (pose) {
+      const position = pose.transform.position;
+      drawCube(position.x, position.y, position.z);
+    }
+  }
+}
+
+// Render a cube at the given position
+function drawCube(x, y, z) {
+  // Example: Render a simple cube at the given position
+  const size = 0.1; // Cube size
+  gl.beginPath();
+  gl.translate(x, y, z);
+  gl.fillStyle = "#39ff14"; // Neon green cube
+  gl.fillRect(-size / 2, -size / 2, size, size);
+  gl.restore();
 }

@@ -299,3 +299,45 @@ margin-top: 10px;
     opacity: 1;
   }
 }
+
+/* Adding Carousel Styles */
+.tns-carousel {
+  width: 100%;
+}
+
+.tns-slide {
+  flex: 0 0 auto;
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 0 10px #00ffef;
+}
+
+.tns-nav {
+  display: none;
+}
+
+/* Carousel Navigation Styles */
+.tns-controls {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.tns-controls button {
+  background-color: var(--yellow-color);
+  color: var(--black-color);
+  border: none;
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+.tns-controls button.tns-nav-active {
+  background-color: var(--red-color);
+}
+
+.tns-controls button:focus {
+  outline: none;
+}

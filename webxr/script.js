@@ -33,6 +33,17 @@ function stopRecording() {
 function displayRecordedData() {
     const output = document.getElementById('output');
     output.textContent = JSON.stringify(recordedData, null, 2);
+
+    // Display the last recorded controller position
+    if (recordedData.length > 0) {
+        const lastPose = recordedData[recordedData.length - 1];
+        document.getElementById('lastPosition').textContent = `X:
+${lastPose.position.x.toFixed(2)}, Y:
+${lastPose.position.y.toFixed(2)}, Z:
+${lastPose.position.z.toFixed(2)}`;
+    } else {
+        document.getElementById('lastPosition').textContent = 'No data recorded yet.';
+    }
 }
 
 async function frame(time, xrFrame) {
@@ -51,7 +62,7 @@ async function frame(time, xrFrame) {
     session.requestAnimationFrame(frame);
 }
 
-document.getElementById('recordButton').addEventListener('click', ()=> {
+document.getElementById('recordButton').addEventListener('click', () => {
     recording = !recording;
     if (recording) {
         document.getElementById('recordButton').textContent = 'Stop Recording';
@@ -62,17 +73,29 @@ document.getElementById('recordButton').addEventListener('click', ()=> {
 
 navigator.xr.requestDevice()
     .then((device) => {
-        device.addEventListener('inputsconnected', (event) => {
-            for (let input of event.inputs) {
-                if (input.target && input.target.handedness ===
-'right') {
-                    controller = input;
-                }
-            }
-        });
+        device.addEventListener('inputsconnected', updateControllers);
+        device.addEventListener('inputsdisconnected',
+updateControllers);
     })
     .catch((error) => {
         console.error('Error requesting XR device:', error);
     });
 
-initXR();
+function updateControllers(event) {
+    const controllersList =
+document.getElementById('controllersList');
+
+controllersList.innerHTML = ''; // Clear existing list
+
+    if (event.inputSources.length === 0) {
+        controllersList.textContent = 'No controllers detected.';
+    } else {
+        event.inputSources.forEach((source, index) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `Controller ${index + 1}`;
+            controllersList.appendChild(listItem);
+        });
+    }
+}
+
+initXR()

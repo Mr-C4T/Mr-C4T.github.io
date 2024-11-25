@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,
+initial-scale=1.0">
     <title>WebXR Hand Tracking</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -10,6 +11,14 @@
     <h1>WebXR Hand Tracking Example</h1>
     <button id="recordButton">Record Position and Orientation</button>
     <pre id="output"></pre>
+    <div>
+        <strong>Last Controller Position:</strong>
+        <p id="lastPosition"></p>
+    </div>
+    <div>
+        <strong>Detected Controllers:</strong>
+        <ul id="controllersList"></ul>
+    </div>
 
     <script src="script.js"></script>
 </body>

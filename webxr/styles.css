@@ -1,38 +1,129 @@
-body {
-  font-family: Arial, sans-serif;
+/* General reset */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  background: linear-gradient(135deg, #1a73e8, #4285f4);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+/* Header */
+header {
   text-align: center;
-  background: #2a2a2a;
+  margin-bottom: 20px;
+  color: #fff;
 }
 
-h1 {
-  margin-top: 20px;
-}
-
-#controls {
-  margin: 20px auto;
-  display: inline-block;
-  text-align: left;
-}
-
-#controls div {
+header h1 {
+  font-size: 2rem;
   margin-bottom: 10px;
 }
 
-button, select, input[type="range"] {
-  margin: 5px;
-  padding: 5px 10px;
-  font-size: 14px;
+header p {
+  font-size: 1rem;
+  font-weight: 300;
+}
+
+/* Main Controls */
+main {
+  width: 100%;
+  max-width: 800px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+label {
+  font-weight: bold;
+  color: #555;
+}
+
+select, input[type="range"], button {
+  font-size: 1rem;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 300px;
+}
+
+button {
+  background: #1a73e8;
+  color: #fff;
+  border: none;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-#record-duration {
-  width: 200px;
+button:hover {
+  background: #4285f4;
 }
 
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Slider */
+input[type="range"] {
+  appearance: none;
+  background: #ddd;
+  height: 8px;
+  border-radius: 4px;
+  outline: none;
+  margin: 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  background: #4285f4;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Footer */
+footer {
+  margin-top: 20px;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+footer p {
+  text-align: center;
+}
+
+/* Canvas Styling */
 #webgl-canvas {
-  width: 100vw;
-  height: 100vh;
-  display: none;
+  width: 100%;
+  max-width: 800px;
+  height: 400px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-top: 20px;
 }

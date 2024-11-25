@@ -1,104 +1,157 @@
-async function startRecording() {
-  if (!xrSession) { // Check if the AR session is active
-      alert("Please start an AR session first.");
-      return;
-  }
+let xrSession = null;
+let gl = null;
+let dataset = [];
+let recording = false;
+let selectedHand = 'left'; // Default hand
+let selectedJoint = 'wrist'; // Default joint
+let recordDuration = 5; // Default duration in seconds
 
-  if (!selectedJoint) { // Check if a joint is selected
-      alert("Please select a joint to record.");
-      return;
-  }
+const JOINTS = [
+    'wrist', 'thumb-metacarpal', 'thumb-phalanx-proximal', 'thumb-phalanx-distal',
+    'index-finger-metacarpal', 'index-finger-phalanx-proximal', 'index-finger-phalanx-intermediate', 'index-finger-phalanx-distal',
+    'middle-finger-metacarpal', 'middle-finger-phalanx-proximal', 'middle-finger-phalanx-intermediate', 'middle-finger-phalanx-distal',
+    'ring-finger-metacarpal', 'ring-finger-phalanx-proximal', 'ring-finger-phalanx-intermediate', 'ring-finger-phalanx-distal',
+    'pinky-finger-metacarpal', 'pinky-finger-phalanx-proximal', 'pinky-finger-phalanx-intermediate', 'pinky-finger-phalanx-distal'
+];
 
-  dataset = []; // Reset the dataset
-  recording = true; // Start recording
-  document.getElementById('start-recording').disabled = true; // Disable the recording button
-  document.getElementById('download-data').style.display = 'none'; // Hide download button while recording
-
-  // Timer to stop recording after the set duration
-  setTimeout(() => {
-      recording = false; // Stop recording
-      document.getElementById('start-recording').disabled = false; // Re-enable the recording button
-      document.getElementById('download-data').style.display = 'block'; // Show download button
-      alert("Recording finished!");
-  }, recordDuration * 1000);
-}
-
+// Ensure the AR session starts correctly
 async function startXR() {
-  if (!navigator.xr) {
-      alert("WebXR is not supported in this browser.");
-      return;
-  }
+    console.log("Attempting to start AR session...");
+    if (!navigator.xr) {
+        alert("WebXR is not supported in this browser.");
+        return;
+    }
 
-  const supported = await navigator.xr.isSessionSupported('immersive-ar');
-  if (!supported) {
-      alert("Your device does not support immersive AR.");
-      return;
-  }
+    const supported = await navigator.xr.isSessionSupported('immersive-ar');
+    if (!supported) {
+        alert("Your device does not support immersive AR.");
+        return;
+    }
 
-  navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['local-floor'], optionalFeatures: ['hand-tracking'] })
-      .then(onSessionStarted)
-      .catch(err => console.error("Failed to start session:", err));
+    try {
+        xrSession = await navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['local-floor'], optionalFeatures: ['hand-tracking'] });
+        onSessionStarted(xrSession);
+    } catch (err) {
+        console.error("Failed to start AR session:", err);
+    }
 }
 
 async function onSessionStarted(session) {
-  xrSession = session; // Ensure xrSession is set
-  const canvas = document.getElementById('webgl-canvas');
-  canvas.style.display = 'block';
+    xrSession = session;
+    console.log("AR session started.");
 
-  gl = canvas.getContext('webgl', { xrCompatible: true });
-  xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
+    const canvas = document.getElementById('webgl-canvas');
+    canvas.style.display = 'block';
 
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  renderer = new THREE.WebGLRenderer({ canvas: canvas, context: gl, alpha: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
+    gl = canvas.getContext('webgl', { xrCompatible: true });
+    xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
 
-  referenceSpace = await xrSession.requestReferenceSpace('local-floor');
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, context: gl, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
-  xrSession.requestAnimationFrame(onXRFrame);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-  xrSession.addEventListener('end', () => {
-      canvas.style.display = 'none';
-      xrSession = null; // Reset xrSession on end
-      console.log("Session ended.");
-  });
+    const referenceSpace = await xrSession.requestReferenceSpace('local-floor');
+    xrSession.requestAnimationFrame((time, frame) => onXRFrame(time, frame, renderer, scene, camera, referenceSpace));
+
+    xrSession.addEventListener('end', () => {
+        xrSession = null;
+        console.log("AR session ended.");
+        canvas.style.display = 'none';
+    });
 }
 
-function onXRFrame(time, frame) {
-  xrSession.requestAnimationFrame(onXRFrame);
+function onXRFrame(time, frame, renderer, scene, camera, referenceSpace) {
+    if (!xrSession) return;
 
-  const pose = frame.getViewerPose(referenceSpace);
-  if (pose) {
-      renderer.setAnimationLoop(() => {
-          gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-          renderer.render(scene, camera);
-      });
+    xrSession.requestAnimationFrame((t, f) => onXRFrame(t, f, renderer, scene, camera, referenceSpace));
 
-      let hands = Array.from(xrSession.inputSources).filter(source => source.hand);
-      for (let hand of hands) {
-          if (hand.handedness === selectedHand && recording) {
-              recordJointData(frame, hand);
-          }
-      }
-  }
+    const pose = frame.getViewerPose(referenceSpace);
+    if (pose) {
+        renderer.render(scene, camera);
+
+        // Handle hand tracking data
+        const hands = Array.from(xrSession.inputSources).filter(source => source.hand);
+        hands.forEach(hand => {
+            if (hand.handedness === selectedHand && recording) {
+                recordJointData(frame, hand, referenceSpace);
+            }
+        });
+    }
 }
 
-function recordJointData(frame, hand) {
-  const jointPose = frame.getJointPose(hand.hand.get(selectedJoint), referenceSpace);
-  if (jointPose) {
-      dataset.push({
-          timestamp: Date.now(),
-          joint: selectedJoint,
-          position: jointPose.transform.position,
-          orientation: jointPose.transform.orientation
-      });
-  }
+function recordJointData(frame, hand, referenceSpace) {
+    const joint = hand.hand.get(selectedJoint);
+    if (!joint) {
+        console.warn(`Joint ${selectedJoint} not found.`);
+        return;
+    }
+
+    const jointPose = frame.getJointPose(joint, referenceSpace);
+    if (jointPose) {
+        dataset.push({
+            timestamp: Date.now(),
+            joint: selectedJoint,
+            hand: selectedHand,
+            position: jointPose.transform.position,
+            orientation: jointPose.transform.orientation
+        });
+        console.log("Recorded joint data:", dataset[dataset.length - 1]);
+    }
+}
+
+function startRecording() {
+    if (!xrSession) {
+        alert("Please start an AR session first.");
+        return;
+    }
+
+    if (!selectedJoint) {
+        alert("Please select a joint to record.");
+        return;
+    }
+
+    dataset = [];
+    recording = true;
+    console.log("Recording started...");
+    document.getElementById('start-recording').disabled = true;
+
+    setTimeout(() => {
+        recording = false;
+        console.log("Recording stopped.");
+        document.getElementById('start-recording').disabled = false;
+        document.getElementById('download-data').style.display = 'block';
+    }, recordDuration * 1000);
 }
 
 function downloadDataset() {
-  const blob = new Blob([JSON.stringify(dataset, null, 2)], { type: 'application/json' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'hand_tracking_dataset.json';
-  link.click();
+    if (dataset.length === 0) {
+        alert("No data recorded!");
+        return;
+    }
+
+    const blob = new Blob([JSON.stringify(dataset, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'hand_tracking_dataset.json';
+    link.click();
+    console.log("Dataset downloaded.");
 }
+
+// UI handlers
+document.getElementById('hand-selector').addEventListener('change', (e) => {
+    selectedHand = e.target.value;
+    console.log(`Selected hand: ${selectedHand}`);
+});
+
+document.getElementById('joint-selector').addEventListener('change', (e) => {
+    selectedJoint = e.target.value;
+    console.log(`Selected joint: ${selectedJoint}`);
+});
+
+document.getElementById('duration-slider').addEventListener('input', (e) => {
+    recordDuration = parseInt(e.target.value, 10);
+    document.getElementById('duration-display').textContent = `${recordDuration} seconds`;
+    console.log(`Record duration set to: ${recordDuration} seconds`);
+});

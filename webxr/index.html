@@ -3,38 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hand Tracking with WebXR</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Hand Tracking AR</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Hand Tracking with WebXR</h1>
-
-    <div id="controls">
-        <div>
-            <label>Choose Hand:</label>
-            <button id="select-left">Left Hand</button>
-            <button id="select-right">Right Hand</button>
-        </div>
-
-        <div>
-            <label for="joint-selector">Choose Joint:</label>
-            <select id="joint-selector">
-                <!-- Joints will be populated dynamically -->
+    <header>
+        <h1>Hand Tracking AR</h1>
+        <p>Record joint positions and orientations from your Meta Quest AR session.</p>
+    </header>
+    <main>
+        <div id="controls">
+            <button id="start-ar">Start AR Session</button>
+            <label for="hand-selector">Select Hand:</label>
+            <select id="hand-selector">
+                <option value="left">Left</option>
+                <option value="right">Right</option>
             </select>
+            <label for="joint-selector">Select Joint:</label>
+            <select id="joint-selector"></select>
+            <label for="duration-slider">Record Duration: 
+                <span id="duration-display">5 seconds</span>
+            </label>
+            <input type="range" id="duration-slider" min="1" max="30" value="5">
+            <button id="start-recording">Start Recording</button>
+            <button id="download-data" style="display:none;">Download Dataset</button>
         </div>
-
-        <div>
-            <label for="record-duration">Recording Duration (seconds):</label>
-            <input type="range" id="record-duration" min="1" max="10" value="5">
-            <span id="duration-label">5</span> sec
-        </div>
-
-        <button id="start-recording">Start Recording</button>
-        <button id="download-data" style="display: none;">Download Dataset</button>
-    </div>
-
-    <canvas id="webgl-canvas"></canvas>
-
-    <script type="module" src="script.js"></script>
+        <canvas id="webgl-canvas" style="display:none;"></canvas>
+    </main>
+    <footer>
+        <p>Hand Tracking AR &copy; 2024. Built with WebXR and Three.js.</p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

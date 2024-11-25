@@ -1,25 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,
-initial-scale=1.0">
-    <title>WebXR Hand Tracking</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Controller Tracking</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>WebXR Hand Tracking Example</h1>
-    <button id="recordButton">Record Position and Orientation</button>
-    <pre id="output"></pre>
-    <div>
-        <strong>Last Controller Position:</strong>
-        <p id="lastPosition"></p>
-    </div>
-    <div>
-        <strong>Detected Controllers:</strong>
-        <ul id="controllersList"></ul>
-    </div>
-
-    <script src="script.js"></script>
+  <h1>Robot Dataset Creator - AR Controller Tracking</h1>
+  <p>Make sure your controller is connected and ready.</p>
+  <div id="webxr-container">
+    <button id="start-ar-button">Start AR</button>
+    <p id="status">Status: Ready</p>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>

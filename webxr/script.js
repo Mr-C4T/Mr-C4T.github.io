@@ -1,157 +1,94 @@
 let xrSession = null;
-let gl = null;
-let dataset = [];
+let selectedHand = "left";
+let selectedJoint = null;
+let jointData = [];
 let recording = false;
-let selectedHand = 'left'; // Default hand
-let selectedJoint = 'wrist'; // Default joint
-let recordDuration = 5; // Default duration in seconds
+let recordDuration = 5;
 
-const JOINTS = [
-    'wrist', 'thumb-metacarpal', 'thumb-phalanx-proximal', 'thumb-phalanx-distal',
-    'index-finger-metacarpal', 'index-finger-phalanx-proximal', 'index-finger-phalanx-intermediate', 'index-finger-phalanx-distal',
-    'middle-finger-metacarpal', 'middle-finger-phalanx-proximal', 'middle-finger-phalanx-intermediate', 'middle-finger-phalanx-distal',
-    'ring-finger-metacarpal', 'ring-finger-phalanx-proximal', 'ring-finger-phalanx-intermediate', 'ring-finger-phalanx-distal',
-    'pinky-finger-metacarpal', 'pinky-finger-phalanx-proximal', 'pinky-finger-phalanx-intermediate', 'pinky-finger-phalanx-distal'
+// DOM Elements
+const startARButton = document.getElementById("start-ar");
+const handSelector = document.getElementById("hand-selector");
+const jointSelector = document.getElementById("joint-selector");
+const durationSlider = document.getElementById("duration-slider");
+const durationDisplay = document.getElementById("duration-display");
+const startRecordingButton = document.getElementById("start-recording");
+const downloadButton = document.getElementById("download-data");
+
+// Populate joint dropdown
+const handJoints = [
+    "wrist", "thumb-metacarpal", "thumb-phalanx-proximal", "thumb-phalanx-distal",
+    "index-metacarpal", "index-phalanx-proximal", "index-phalanx-intermediate",
+    "index-phalanx-distal", "middle-metacarpal", "middle-phalanx-proximal",
+    "middle-phalanx-intermediate", "middle-phalanx-distal", "ring-metacarpal",
+    "ring-phalanx-proximal", "ring-phalanx-intermediate", "ring-phalanx-distal",
+    "pinky-metacarpal", "pinky-phalanx-proximal", "pinky-phalanx-intermediate",
+    "pinky-phalanx-distal"
 ];
 
-// Ensure the AR session starts correctly
-async function startXR() {
-    console.log("Attempting to start AR session...");
-    if (!navigator.xr) {
-        alert("WebXR is not supported in this browser.");
-        return;
+jointSelector.innerHTML = handJoints.map(joint => `<option value="${joint}">${joint}</option>`).join("");
+
+// Update duration display
+durationSlider.addEventListener("input", () => {
+    recordDuration = parseInt(durationSlider.value);
+    durationDisplay.textContent = `${recordDuration} seconds`;
+});
+
+// Start AR session
+startARButton.addEventListener("click", async () => {
+    if (navigator.xr && navigator.xr.isSessionSupported) {
+        const supported = await navigator.xr.isSessionSupported("immersive-ar");
+        if (supported) {
+            xrSession = await navigator.xr.requestSession("immersive-ar");
+            document.getElementById("webgl-canvas").style.display = "block";
+            console.log("AR Session started.");
+        } else {
+            alert("AR immersive mode not supported on this device.");
+        }
+    } else {
+        alert("WebXR not supported in this browser.");
     }
+});
 
-    const supported = await navigator.xr.isSessionSupported('immersive-ar');
-    if (!supported) {
-        alert("Your device does not support immersive AR.");
-        return;
-    }
-
-    try {
-        xrSession = await navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['local-floor'], optionalFeatures: ['hand-tracking'] });
-        onSessionStarted(xrSession);
-    } catch (err) {
-        console.error("Failed to start AR session:", err);
-    }
-}
-
-async function onSessionStarted(session) {
-    xrSession = session;
-    console.log("AR session started.");
-
-    const canvas = document.getElementById('webgl-canvas');
-    canvas.style.display = 'block';
-
-    gl = canvas.getContext('webgl', { xrCompatible: true });
-    xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
-
-    const renderer = new THREE.WebGLRenderer({ canvas: canvas, context: gl, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-    const referenceSpace = await xrSession.requestReferenceSpace('local-floor');
-    xrSession.requestAnimationFrame((time, frame) => onXRFrame(time, frame, renderer, scene, camera, referenceSpace));
-
-    xrSession.addEventListener('end', () => {
-        xrSession = null;
-        console.log("AR session ended.");
-        canvas.style.display = 'none';
-    });
-}
-
-function onXRFrame(time, frame, renderer, scene, camera, referenceSpace) {
-    if (!xrSession) return;
-
-    xrSession.requestAnimationFrame((t, f) => onXRFrame(t, f, renderer, scene, camera, referenceSpace));
-
-    const pose = frame.getViewerPose(referenceSpace);
-    if (pose) {
-        renderer.render(scene, camera);
-
-        // Handle hand tracking data
-        const hands = Array.from(xrSession.inputSources).filter(source => source.hand);
-        hands.forEach(hand => {
-            if (hand.handedness === selectedHand && recording) {
-                recordJointData(frame, hand, referenceSpace);
-            }
-        });
-    }
-}
-
-function recordJointData(frame, hand, referenceSpace) {
-    const joint = hand.hand.get(selectedJoint);
-    if (!joint) {
-        console.warn(`Joint ${selectedJoint} not found.`);
-        return;
-    }
-
-    const jointPose = frame.getJointPose(joint, referenceSpace);
-    if (jointPose) {
-        dataset.push({
-            timestamp: Date.now(),
-            joint: selectedJoint,
-            hand: selectedHand,
-            position: jointPose.transform.position,
-            orientation: jointPose.transform.orientation
-        });
-        console.log("Recorded joint data:", dataset[dataset.length - 1]);
-    }
-}
-
-function startRecording() {
-    if (!xrSession) {
-        alert("Please start an AR session first.");
-        return;
-    }
-
-    if (!selectedJoint) {
-        alert("Please select a joint to record.");
-        return;
-    }
-
-    dataset = [];
-    recording = true;
-    console.log("Recording started...");
-    document.getElementById('start-recording').disabled = true;
-
-    setTimeout(() => {
-        recording = false;
-        console.log("Recording stopped.");
-        document.getElementById('start-recording').disabled = false;
-        document.getElementById('download-data').style.display = 'block';
-    }, recordDuration * 1000);
-}
-
-function downloadDataset() {
-    if (dataset.length === 0) {
-        alert("No data recorded!");
-        return;
-    }
-
-    const blob = new Blob([JSON.stringify(dataset, null, 2)], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'hand_tracking_dataset.json';
-    link.click();
-    console.log("Dataset downloaded.");
-}
-
-// UI handlers
-document.getElementById('hand-selector').addEventListener('change', (e) => {
+// Handle hand selection
+handSelector.addEventListener("change", (e) => {
     selectedHand = e.target.value;
     console.log(`Selected hand: ${selectedHand}`);
 });
 
-document.getElementById('joint-selector').addEventListener('change', (e) => {
+// Handle joint selection
+jointSelector.addEventListener("change", (e) => {
     selectedJoint = e.target.value;
     console.log(`Selected joint: ${selectedJoint}`);
 });
 
-document.getElementById('duration-slider').addEventListener('input', (e) => {
-    recordDuration = parseInt(e.target.value, 10);
-    document.getElementById('duration-display').textContent = `${recordDuration} seconds`;
-    console.log(`Record duration set to: ${recordDuration} seconds`);
+// Start recording
+startRecordingButton.addEventListener("click", () => {
+    if (!xrSession) {
+        alert("Start an AR session before recording!");
+        return;
+    }
+    if (!selectedJoint) {
+        alert("Select a joint to record.");
+        return;
+    }
+    recording = true;
+    jointData = [];
+    console.log(`Recording ${selectedJoint} on ${selectedHand} hand for ${recordDuration} seconds.`);
+
+    setTimeout(() => {
+        recording = false;
+        downloadButton.style.display = "block";
+        console.log("Recording stopped. Data ready to download.");
+    }, recordDuration * 1000);
+});
+
+// Download recorded data
+downloadButton.addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(jointData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "hand-joint-data.json";
+    link.click();
+    URL.revokeObjectURL(url);
 });

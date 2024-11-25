@@ -1,62 +1,14 @@
-/* General body styling */
 body {
   font-family: Arial, sans-serif;
   text-align: center;
-  background-color: #212121; /* Dark grey theme */
-  color: #e0e0e0; /* Light grey text for better contrast */
   margin: 0;
-  padding: 0;
-}
-
-/* Heading styling */
-h1 {
-  margin-top: 20px;
-  font-size: 2.5em;
-  color: #39ff14; /* Neon green */
-}
-
-/* WebXR container styling */
-#webxr-container {
-  margin-top: 40px;
   padding: 20px;
-  border: 2px solid #39ff14; /* Neon green border */
-  border-radius: 8px;
-  display: inline-block;
-  background-color: #2a2a2a; /* Slightly lighter grey for contrast */
-  box-shadow: 0px 4px 10px rgba(0, 255, 0, 0.4); /* Neon green glow */
 }
 
-/* Button styling */
-button {
-  padding: 12px 25px;
-  font-size: 16px;
-  margin-top: 20px;
-  color: #212121; /* Dark grey text on button */
-  background-color: #39ff14; /* Neon green button */
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+#recordButton {
+  margin-bottom: 20px;
 }
 
-/* Button hover effect */
-button:hover {
-  background-color: #32e014; /* Slightly darker neon green */
-  transform: scale(1.1); /* Slight zoom effect */
-}
-
-/* Paragraph styling */
-p {
-  font-size: 18px;
-  font-weight: bold;
-  color: #e0e0e0; /* Light grey text */
-  margin: 10px 0;
-}
-
-/* Status text */
-#status {
-  color: #39ff14; /* Neon green for status text */
-  font-size: 16px;
-  margin-top: 10px;
+pre {
+  white-space: pre-wrap; /* Preserve whitespace */
 }

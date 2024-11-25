@@ -1,160 +1,95 @@
-// Declare necessary variables
 let xrSession = null;
 let gl = null;
-let xrReferenceSpace = null;
-let controller = null;
-let controllerData = [];
-let timer = null;
-let csvData = "timestamp,x,y,z\n";
+let renderer = null;
+let scene = null;
+let camera = null;
+let referenceSpace = null;
+let dataset = [];
 
-// Get elements from the DOM
-const startARButton = document.getElementById("start-ar-button");
-const statusElement = document.getElementById("status");
+document.getElementById('start-xr').addEventListener('click', startXR);
+document.getElementById('download-data').addEventListener('click', downloadDataset);
 
-// Set up WebGL rendering
-function setupWebGL(canvas) {
-  gl = canvas.getContext("webgl", { xrCompatible: true });
-  const clearColor = [33 / 255, 33 / 255, 33 / 255, 1.0]; // Dark grey background
-  gl.clearColor(...clearColor);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+async function startXR() {
+    if (!navigator.xr) {
+        alert("WebXR is not supported in this browser.");
+        return;
+    }
+
+    const supported = await navigator.xr.isSessionSupported('immersive-ar');
+    if (!supported) {
+        alert("Your device does not support immersive AR.");
+        return;
+    }
+
+    navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['local-floor'], optionalFeatures: ['hand-tracking'] })
+        .then(onSessionStarted)
+        .catch(err => console.error("Failed to start session:", err));
 }
 
-// Listen for the Start AR button click
-startARButton.addEventListener("click", startAR);
+async function onSessionStarted(session) {
+    xrSession = session;
+    const canvas = document.getElementById('webgl-canvas');
+    canvas.style.display = 'block';
 
-async function startAR() {
-  // Check WebXR support
-  if (!navigator.xr) {
-    statusElement.textContent = "WebXR not supported on this device.";
-    console.error("WebXR not supported.");
-    return;
-  }
-
-  // Check if AR is supported
-  const arSupported = await navigator.xr.isSessionSupported("immersive-ar");
-  if (!arSupported) {
-    console.warn("AR feature not supported, falling back to VR.");
-    statusElement.textContent = "AR not supported. Trying VR...";
-  }
-
-  // Start XR session
-  try {
-    xrSession = await navigator.xr.requestSession(arSupported ? "immersive-ar" : "immersive-vr", {
-      requiredFeatures: ["local"],
-    });
-
-    xrReferenceSpace = await xrSession.requestReferenceSpace("local");
-
-    // WebGL setup
-    const canvas = document.createElement("canvas");
-    document.body.appendChild(canvas);
-    setupWebGL(canvas);
-
+    gl = canvas.getContext('webgl', { xrCompatible: true });
     xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
+
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, context: gl, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    referenceSpace = await xrSession.requestReferenceSpace('local-floor');
+
     xrSession.requestAnimationFrame(onXRFrame);
 
-    startControllerTracking();
-    startTimer();
+    xrSession.addEventListener('end', () => {
+        canvas.style.display = 'none';
+        document.getElementById('download-data').style.display = 'none';
+        console.log("Session ended.");
+    });
 
-    statusElement.textContent = arSupported ? "AR session started." : "VR session started.";
-  } catch (err) {
-    console.error("Failed to start XR session:", err);
-    statusElement.textContent = "Failed to start XR session.";
-  }
+    document.getElementById('start-xr').style.display = 'none';
+    document.getElementById('download-data').style.display = 'block';
 }
 
-function startControllerTracking() {
-  // Detect input sources (controllers)
-  xrSession.addEventListener("inputsourceschange", () => {
-    const inputSources = Array.from(xrSession.inputSources);
-    controller = inputSources.find((source) => source.targetRayMode === "tracked-pointer");
+function onXRFrame(time, frame) {
+    xrSession.requestAnimationFrame(onXRFrame);
 
-    if (controller) {
-      console.log("Controller detected:", controller);
-      statusElement.textContent = "Controller detected. Collecting data...";
-    } else {
-      console.log("No controller detected.");
-      statusElement.textContent = "No controller detected. Please connect a controller.";
-    }
-  });
-}
-
-function startTimer() {
-  let elapsed = 0;
-  timer = setInterval(() => {
-    elapsed += 0.5;
-    if (elapsed >= 25) {
-      clearInterval(timer);
-      downloadCSV();
-    } else {
-      collectControllerData();
-    }
-  }, 500);
-}
-
-function collectControllerData() {
-  if (!controller || !controller.targetRaySpace) {
-    console.log("No controller data available.");
-    return;
-  }
-
-  // Get controller's pose
-  const frame = xrSession.requestAnimationFrame(() => {
-    const pose = xrSession.getPose(controller.targetRaySpace, xrReferenceSpace);
+    const pose = frame.getViewerPose(referenceSpace);
     if (pose) {
-      const position = pose.transform.position;
-      const timestamp = Date.now();
-      csvData += `${timestamp},${position.x},${position.y},${position.z}\n`;
-      console.log(`Logged data: ${timestamp}, ${position.x}, ${position.y}, ${position.z}`);
-    } else {
-      console.log("No valid position data from controller.");
+        // Render AR scene
+        renderer.setAnimationLoop(() => {
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            renderer.render(scene, camera);
+        });
+
+        // Handle hand tracking
+        let hands = Array.from(xrSession.inputSources).filter(source => source.hand);
+        for (let hand of hands) {
+            updateHandData(frame, hand);
+        }
     }
-  });
 }
 
-function downloadCSV() {
-  const blob = new Blob([csvData], { type: "text/csv" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "controller_tracking_data.csv";
-  link.click();
+function updateHandData(frame, hand) {
+    let handData = {};
+    for (let jointName of hand.hand.keys()) {
+        const jointPose = frame.getJointPose(hand.hand.get(jointName), referenceSpace);
+        if (jointPose) {
+            handData[jointName] = {
+                position: jointPose.transform.position,
+                orientation: jointPose.transform.orientation
+            };
+        }
+    }
+    dataset.push(handData);
 }
 
-function onXRFrame(t, frame) {
-  // Request the next animation frame 
-  xrSession.requestAnimationFrame(onXRFrame);
-
-  // Clear the WebGL canvas
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-  // Get controller pose and render a cube
-  if (controller && controller.targetRaySpace) {
-    const pose = frame.getPose(controller.targetRaySpace, xrReferenceSpace);
-    if (pose) {
-      const position = pose.transform.position;
-      drawCube(position.x, position.y, position.z); 
-    }  
-  }   
-} 
-
-// Render a cube at the given position
-function drawCube(x, y, z) {
-  const size = 0.1; // Cube size
-
-  // Create a buffer for the cube's vertices
-  const vertices = new Float32Array([
-    x - size, y - size, z,
-    x + size, y - size, z,
-    x + size, y + size, z,
-    x - size, y + size, z,
-  ]);
-
-  const buffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-
-  gl.enableVertexAttribArray(0);
-  gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
-
-  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); // Draw the cube as a 2D square for simplicity
+function downloadDataset() {
+    const blob = new Blob([JSON.stringify(dataset, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'hand_tracking_dataset.json';
+    link.click();
 }

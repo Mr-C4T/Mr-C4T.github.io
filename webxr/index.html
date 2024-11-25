@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR Controller Tracking</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Tracking with WebXR</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Robot Dataset Creator - AR Controller Tracking</h1>
-  <p>Make sure your controller is connected and ready.</p>
-  <div id="webxr-container">
-    <button id="start-ar-button">Start AR</button>
-    <p id="status">Status: Ready</p>
-  </div>
-  <script src="script.js"></script>
+    <h1>Hand Tracking with WebXR</h1>
+    <button id="start-xr">Start AR Session</button>
+    <button id="download-data" style="display: none;">Download Dataset</button>
+    <canvas id="webgl-canvas"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@ body {
   margin: 0;
   padding: 0;
   text-align: center;
-  background: #212121;
+  background: #202020;
   color: white;
 }
 
@@ -11,11 +11,25 @@ h1 {
   margin-top: 20px;
 }
 
-button {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
+#controls {
+  margin: 20px auto;
+  display: inline-block;
+  text-align: left;
+}
+
+#controls div {
+  margin-bottom: 10px;
+}
+
+button, select, input[type="range"] {
+  margin: 5px;
+  padding: 5px 10px;
+  font-size: 14px;
   cursor: pointer;
+}
+
+#record-duration {
+  width: 200px;
 }
 
 #webgl-canvas {

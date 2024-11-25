@@ -8,9 +8,33 @@
 </head>
 <body>
     <h1>Hand Tracking with WebXR</h1>
-    <button id="start-xr">Start AR Session</button>
-    <button id="download-data" style="display: none;">Download Dataset</button>
+
+    <div id="controls">
+        <div>
+            <label>Choose Hand:</label>
+            <button id="select-left">Left Hand</button>
+            <button id="select-right">Right Hand</button>
+        </div>
+
+        <div>
+            <label for="joint-selector">Choose Joint:</label>
+            <select id="joint-selector">
+                <!-- Joints will be populated dynamically -->
+            </select>
+        </div>
+
+        <div>
+            <label for="record-duration">Recording Duration (seconds):</label>
+            <input type="range" id="record-duration" min="1" max="10" value="5">
+            <span id="duration-label">5</span> sec
+        </div>
+
+        <button id="start-recording">Start Recording</button>
+        <button id="download-data" style="display: none;">Download Dataset</button>
+    </div>
+
     <canvas id="webgl-canvas"></canvas>
+
     <script type="module" src="script.js"></script>
 </body>
 </html>

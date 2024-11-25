@@ -8,71 +8,66 @@ let timer = null;
 let csvData = "timestamp,x,y,z\n";
 
 // Get elements from the DOM
-const startARButton = document.getElementById('start-ar-button');
-const statusElement = document.getElementById('status');
+const startARButton = document.getElementById("start-ar-button");
+const statusElement = document.getElementById("status");
 
 // Set up WebGL rendering
 function setupWebGL(canvas) {
   gl = canvas.getContext("webgl", { xrCompatible: true });
   const clearColor = [33 / 255, 33 / 255, 33 / 255, 1.0]; // Dark grey background
   gl.clearColor(...clearColor);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
 
 // Listen for the Start AR button click
-startARButton.addEventListener('click', startAR);
+startARButton.addEventListener("click", startAR);
 
 async function startAR() {
-  // Check if WebXR is supported
+  // Check WebXR support
   if (!navigator.xr) {
     statusElement.textContent = "WebXR not supported on this device.";
-    console.error("WebXR not supported on this device.");
+    console.error("WebXR not supported.");
     return;
   }
 
-  // Check if immersive AR is supported
-  const xrSupported = await navigator.xr.isSessionSupported('immersive-ar');
-  if (!xrSupported) {
-    statusElement.textContent = "AR feature not supported by this device.";
-    console.error("AR feature not supported by this device.");
-    return;
+  // Check if AR is supported
+  const arSupported = await navigator.xr.isSessionSupported("immersive-ar");
+  if (!arSupported) {
+    console.warn("AR feature not supported, falling back to VR.");
+    statusElement.textContent = "AR not supported. Trying VR...";
   }
 
-  // Start immersive AR session
+  // Start XR session
   try {
-    xrSession = await navigator.xr.requestSession('immersive-ar', {
-      requiredFeatures: ['local']
+    xrSession = await navigator.xr.requestSession(arSupported ? "immersive-ar" : "immersive-vr", {
+      requiredFeatures: ["local"],
     });
 
-    // Get XR reference space
-    xrReferenceSpace = await xrSession.requestReferenceSpace('local');
+    xrReferenceSpace = await xrSession.requestReferenceSpace("local");
 
-    // Set up WebGL for XR rendering
-    const canvas = document.createElement('canvas');
+    // WebGL setup
+    const canvas = document.createElement("canvas");
     document.body.appendChild(canvas);
     setupWebGL(canvas);
 
-    // Start XR rendering loop
     xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
     xrSession.requestAnimationFrame(onXRFrame);
 
-    // Monitor controllers
     startControllerTracking();
-
-    // Start recording timer
     startTimer();
 
-    statusElement.textContent = "AR session started, collecting data...";
+    statusElement.textContent = arSupported ? "AR session started." : "VR session started.";
   } catch (err) {
-    console.error("Failed to start AR session:", err);
-    statusElement.textContent = "Failed to start AR session.";
+    console.error("Failed to start XR session:", err);
+    statusElement.textContent = "Failed to start XR session.";
   }
 }
 
 function startControllerTracking() {
   // Detect input sources (controllers)
-  xrSession.addEventListener('inputsourceschange', () => {
+  xrSession.addEventListener("inputsourceschange", () => {
     const inputSources = Array.from(xrSession.inputSources);
-    controller = inputSources.find((source) => source.targetRayMode === 'tracked-pointer');
+    controller = inputSources.find((source) => source.targetRayMode === "tracked-pointer");
 
     if (controller) {
       console.log("Controller detected:", controller);
@@ -118,10 +113,10 @@ function collectControllerData() {
 }
 
 function downloadCSV() {
-  const blob = new Blob([csvData], { type: 'text/csv' });
-  const link = document.createElement('a');
+  const blob = new Blob([csvData], { type: "text/csv" });
+  const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = 'controller_tracking_data.csv';
+  link.download = "controller_tracking_data.csv";
   link.click();
 }
 
@@ -144,11 +139,22 @@ function onXRFrame(t, frame) {
 
 // Render a cube at the given position
 function drawCube(x, y, z) {
-  // Example: Render a simple cube at the given position
   const size = 0.1; // Cube size
-  gl.beginPath();
-  gl.translate(x, y, z);
-  gl.fillStyle = "#39ff14"; // Neon green cube
-  gl.fillRect(-size / 2, -size / 2, size, size);
-  gl.restore();
+
+  // Create a buffer for the cube's vertices
+  const vertices = new Float32Array([
+    x - size, y - size, z,
+    x + size, y - size, z,
+    x + size, y + size, z,
+    x - size, y + size, z,
+  ]);
+
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+
+  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); // Draw the cube as a 2D square for simplicity
 }

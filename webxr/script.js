@@ -7,7 +7,7 @@ let renderer = null;
 let scene = null;
 let camera = null;
 let referenceSpace = null;
-let dataset = [];
+let dataset = [];  // Global dataset to persist data across sessions
 let recordingStartTime = 0;
 let maxRecordingTime = 10;
 let isRecording = false;
@@ -24,7 +24,6 @@ const HAND_JOINTS = [
 
 // Initialize UI
 function initializeUI() {
-    // Populate joint checkboxes
     const jointGrid = document.getElementById('joint-grid');
     HAND_JOINTS.forEach(joint => {
         const jointCheckbox = document.createElement('div');
@@ -103,30 +102,30 @@ async function onSessionStarted(session) {
     // Setup Three.js scene
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    
-    // Setup renderer
     renderer = new THREE.WebGLRenderer({ canvas: canvas, context: gl, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     
     // Get reference space
     referenceSpace = await xrSession.requestReferenceSpace('local-floor');
     
-    // Reset and start recording
-    dataset = [];
+    // Start recording (do not clear dataset here)
     isRecording = true;
     recordingStartTime = performance.now();
     
     // Start animation frame
     xrSession.requestAnimationFrame(onXRFrame);
-    
+
     // Hide UI
     document.querySelector('.container').style.display = 'none';
     
-    // Handle session end
+    // Handle session end without clearing dataset
     xrSession.addEventListener('end', () => {
         canvas.style.display = 'none';
         document.querySelector('.container').style.display = 'block';
         isRecording = false;
+
+        // Log data to ensure persistence
+        console.log("Session ended. Dataset:", dataset);
     });
 }
 
@@ -184,6 +183,7 @@ function updateHandData(frame, hand) {
     
     if (Object.keys(handData).length > 0) {
         dataset.push(handData);
+        console.log("Recorded hand data:", handData);  // Debugging the data being recorded
     }
 }
 
@@ -191,9 +191,10 @@ function updateHandData(frame, hand) {
 function downloadDataset() {
     if (dataset.length === 0) {
         alert("No data recorded. Start an XR session first.");
+        console.log("Dataset is empty at download attempt.");
         return;
     }
-    
+
     const blob = new Blob([JSON.stringify(dataset, null, 2)], { type: 'application/json' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);

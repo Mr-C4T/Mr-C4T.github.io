@@ -1,130 +1,97 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.module.js';
+
 let xrSession = null;
-let xrRefSpace = null;
-let recording = false;
-let jointData = [];
-let selectedHand = "left";
-let selectedJoint = null;
-let recordDuration = 5;
+let gl = null;
+let renderer = null;
+let scene = null;
+let camera = null;
+let referenceSpace = null;
+let dataset = [];
 
-// DOM Elements
-const startARButton = document.getElementById("start-ar");
-const handSelector = document.getElementById("hand-selector");
-const jointSelector = document.getElementById("joint-selector");
-const durationSlider = document.getElementById("duration-slider");
-const durationDisplay = document.getElementById("duration-display");
-const downloadButton = document.getElementById("download-data");
+document.getElementById('start-xr').addEventListener('click', startXR);
+document.getElementById('download-data').addEventListener('click', downloadDataset);
 
-// Populate joint dropdown
-const handJoints = [
-    "wrist", "thumb-metacarpal", "thumb-phalanx-proximal", "thumb-phalanx-distal",
-    "index-metacarpal", "index-phalanx-proximal", "index-phalanx-intermediate",
-    "index-phalanx-distal", "middle-metacarpal", "middle-phalanx-proximal",
-    "middle-phalanx-intermediate", "middle-phalanx-distal", "ring-metacarpal",
-    "ring-phalanx-proximal", "ring-phalanx-intermediate", "ring-phalanx-distal",
-    "pinky-metacarpal", "pinky-phalanx-proximal", "pinky-phalanx-intermediate",
-    "pinky-phalanx-distal"
-];
-
-jointSelector.innerHTML = handJoints.map(joint => `<option value="${joint}">${joint}</option>`).join("");
-
-// Update duration display
-durationSlider.addEventListener("input", () => {
-    recordDuration = parseInt(durationSlider.value);
-    durationDisplay.textContent = `${recordDuration} seconds`;
-});
-
-// Combined AR and Recording Logic
-startARButton.addEventListener("click", async () => {
-    if (!navigator.xr || !navigator.xr.isSessionSupported) {
-        alert("WebXR not supported in this browser.");
+async function startXR() {
+    if (!navigator.xr) {
+        alert("WebXR is not supported in this browser.");
         return;
     }
 
-    const supported = await navigator.xr.isSessionSupported("immersive-ar");
+    const supported = await navigator.xr.isSessionSupported('immersive-ar');
     if (!supported) {
-        alert("AR immersive mode not supported on this device.");
+        alert("Your device does not support immersive AR.");
         return;
     }
 
-    // Start AR Session
-    xrSession = await navigator.xr.requestSession("immersive-ar");
-    const canvas = document.createElement("canvas");
-    document.body.appendChild(canvas);
-    const gl = canvas.getContext("webgl", { xrCompatible: true });
-    xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
-    xrRefSpace = await xrSession.requestReferenceSpace("local");
-
-    // Start Recording
-    startRecording();
-});
-
-function startRecording() {
-    if (!xrSession) {
-        alert("AR session not active.");
-        return;
-    }
-    if (!selectedJoint) {
-        alert("Select a joint to record.");
-        return;
-    }
-
-    recording = true;
-    jointData = [];
-    console.log(`Recording ${selectedJoint} on ${selectedHand} hand for ${recordDuration} seconds.`);
-
-    const stopTime = Date.now() + recordDuration * 1000;
-
-    function onXRFrame(time, frame) {
-        if (!recording) return;
-
-        const inputSources = xrSession.inputSources;
-        inputSources.forEach(source => {
-            if (source.handedness === selectedHand && source.hand) {
-                const joint = source.hand.get(selectedJoint);
-                if (joint) {
-                    const jointPose = frame.getJointPose(joint, xrRefSpace);
-                    if (jointPose) {
-                        jointData.push({
-                            time: Date.now(),
-                            position: jointPose.transform.position,
-                            orientation: jointPose.transform.orientation
-                        });
-                    }
-                }
-            }
-        });
-
-        if (Date.now() >= stopTime) {
-            recording = false;
-            xrSession.requestAnimationFrame(null); // Stop rendering
-            downloadButton.style.display = "block";
-            console.log("Recording stopped. Data ready to download.");
-        } else {
-            xrSession.requestAnimationFrame(onXRFrame); // Continue recording
-        }
-    }
-
-    xrSession.requestAnimationFrame(onXRFrame);
+    navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['local-floor'], optionalFeatures: ['hand-tracking'] })
+        .then(onSessionStarted)
+        .catch(err => console.error("Failed to start session:", err));
 }
 
-// Handle hand and joint selection
-handSelector.addEventListener("change", (e) => {
-    selectedHand = e.target.value;
-    console.log(`Selected hand: ${selectedHand}`);
-});
+async function onSessionStarted(session) {
+    xrSession = session;
+    const canvas = document.getElementById('webgl-canvas');
+    canvas.style.display = 'block';
 
-jointSelector.addEventListener("change", (e) => {
-    selectedJoint = e.target.value;
-    console.log(`Selected joint: ${selectedJoint}`);
-});
+    gl = canvas.getContext('webgl', { xrCompatible: true });
+    xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
 
-// Download recorded data
-downloadButton.addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(jointData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "hand-joint-data.json";
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, context: gl, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    referenceSpace = await xrSession.requestReferenceSpace('local-floor');
+
+    xrSession.requestAnimationFrame(onXRFrame);
+
+    xrSession.addEventListener('end', () => {
+        canvas.style.display = 'none';
+        document.getElementById('download-data').style.display = 'none';
+        console.log("Session ended.");
+    });
+
+    document.getElementById('start-xr').style.display = 'none';
+    document.getElementById('download-data').style.display = 'block';
+}
+
+function onXRFrame(time, frame) {
+    xrSession.requestAnimationFrame(onXRFrame);
+
+    const pose = frame.getViewerPose(referenceSpace);
+    if (pose) {
+        // Render AR scene
+        renderer.setAnimationLoop(() => {
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            renderer.render(scene, camera);
+        });
+
+        // Handle hand tracking
+        let hands = Array.from(xrSession.inputSources).filter(source => source.hand);
+        for (let hand of hands) {
+            updateHandData(frame, hand);
+        }
+    }
+}
+
+function updateHandData(frame, hand) {
+    let handData = {};
+    for (let jointName of hand.hand.keys()) {
+        const jointPose = frame.getJointPose(hand.hand.get(jointName), referenceSpace);
+        if (jointPose) {
+            handData[jointName] = {
+                position: jointPose.transform.position,
+                orientation: jointPose.transform.orientation
+            };
+        }
+    }
+    dataset.push(handData);
+}
+
+function downloadDataset() {
+    const blob = new Blob([JSON.stringify(dataset, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'hand_tracking_dataset.json';
     link.click();
-    URL.revokeObjectURL(url);
-});
+}

@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebXR Hand Tracking debug</title>
+    <title>WebXR Hand Tracking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             background-color: #2c2c2c;
             color: #39ff14;
             display: flex;
@@ -75,6 +76,11 @@
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .btn:hover {
+            transform: scale(1.1);
+            background-color: #28e011;
         }
         #webgl-canvas {
             position: fixed;
@@ -90,7 +96,9 @@
 <body>
     <div class="container">
         <div class="settings-section">
-            <label>Max Recording Time (seconds): <span id="time-limit-display">10</span>s</label>
+            <label for="time-limit-slider">Max Recording Time (seconds): 
+                <span id="time-limit-display">10</span>s
+            </label>
             <input type="range" id="time-limit-slider" min="1" max="60" value="10">
         </div>
         
@@ -103,8 +111,6 @@
         
         <button id="start-xr" class="btn">Start XR Session</button>
         <button id="download-data" class="btn">Download Data</button>
-        <!--<button id="download-data" class="btn" style="display:none;">Download Data</button>-->
-
     </div>
 
     <canvas id="webgl-canvas"></canvas>

@@ -1,5 +1,3 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.module.js';
-
 // Global variables
 let xrSession = null;
 let gl = null;
@@ -120,17 +118,11 @@ async function onSessionStarted(session) {
     xrSession.requestAnimationFrame(onXRFrame);
     
     // Hide UI
-    //document.querySelector('.container').style.display = 'none';
-    
-    // Show download button
-    //document.getElementById('download-data').style.display = 'block';
+    document.querySelector('.container').style.display = 'none';
     
     // Handle session end
     xrSession.addEventListener('end', () => {
         canvas.style.display = 'none';
-        //document.getElementById('download-data').style.display = 'none';
-        //document.getElementById('download-data').style.display = 'block'; ########################################################################### ERR WITH DOWNLOAD BUTTON
-
         document.querySelector('.container').style.display = 'block';
         isRecording = false;
     });

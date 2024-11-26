@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebXR Hand Tracking</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>WebXR Hand Tracking debug</title>
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #2c2c2c;
             color: #39ff14;
             display: flex;
@@ -60,7 +59,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #151515;
+            color: #2c2c2c;
         }
         .slider-container {
             display: flex;
@@ -76,11 +75,6 @@
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
-            transition: transform 0.2s, background-color 0.2s;
-        }
-        .btn:hover {
-            transform: scale(1.1);
-            background-color: #249f13;
         }
         #webgl-canvas {
             position: fixed;

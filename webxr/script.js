@@ -67,15 +67,9 @@ async function startXR() {
     }
     
     // Check if immersive AR is supported
-    try {
-        const supported = await navigator.xr.supportsSession('immersive-ar');
-        if (!supported) {
-            alert("Your device does not support immersive AR.");
-            return;
-        }
-    } catch (err) {
-        console.error("Error checking XR session support:", err);
-        alert("Failed to verify XR support. Check console for details.");
+    const supported = await navigator.xr.isSessionSupported('immersive-ar');
+    if (!supported) {
+        alert("Your device does not support immersive AR.");
         return;
     }
     
@@ -136,28 +130,32 @@ async function onSessionStarted(session) {
 
 // XR Animation Frame
 function onXRFrame(time, frame) {
-    // Check if session is still active
-    if (!xrSession) return;
+    // Check if recording should continue
+    if (!xrSession || xrSession.ended) return;
 
     xrSession.requestAnimationFrame(onXRFrame);
-
-    // Stop recording after max time
+    
+    // Check time limit
     if (isRecording && (time - recordingStartTime) / 1000 > maxRecordingTime) {
         isRecording = false;
         xrSession.end();
         return;
     }
-
+    
     // Get viewer pose
     const pose = frame.getViewerPose(referenceSpace);
     if (pose) {
         // Render scene
-        renderer.render(scene, camera);
-
-        // Process hand tracking
-        const hands = xrSession.inputSources ? 
-            Array.from(xrSession.inputSources).filter(source => source.hand) : [];
-        hands.forEach(hand => updateHandData(frame, hand));
+        renderer.setAnimationLoop(() => {
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            renderer.render(scene, camera);
+        });
+        
+        // Track hands
+        let hands = Array.from(xrSession.inputSources).filter(source => source.hand);
+        for (let hand of hands) {
+            updateHandData(frame, hand);
+        }
     }
 }
 
@@ -173,15 +171,12 @@ function updateHandData(frame, hand) {
     );
     
     for (let jointName of selectedJoints) {
-        const joint = hand.hand.get(jointName);
-        if (joint) {
-            const jointPose = frame.getJointPose(joint, referenceSpace);
-            if (jointPose) {
-                handData[jointName] = {
-                    position: jointPose.transform.position,
-                    orientation: jointPose.transform.orientation
-                };
-            }
+        const jointPose = frame.getJointPose(hand.hand.get(jointName), referenceSpace);
+        if (jointPose) {
+            handData[jointName] = {
+                position: jointPose.transform.position,
+                orientation: jointPose.transform.orientation
+            };
         }
     }
     

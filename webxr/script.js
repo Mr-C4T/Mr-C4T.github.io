@@ -128,7 +128,10 @@ async function onSessionStarted(session) {
     // Handle session end
     xrSession.addEventListener('end', () => {
         canvas.style.display = 'none';
-        document.getElementById('download-data').style.display = 'none';
+        document.getElementById('download-data').style.display = 'none';        
+        //document.getElementById('download-data').style.display = 'none';
+        //document.getElementById('download-data').style.display = 'block';
+
         document.querySelector('.container').style.display = 'block';
         isRecording = false;
     });

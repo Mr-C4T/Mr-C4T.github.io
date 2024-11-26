@@ -120,7 +120,7 @@ async function onSessionStarted(session) {
     xrSession.requestAnimationFrame(onXRFrame);
     
     // Hide UI
-    document.querySelector('.container').style.display = 'none';
+    //document.querySelector('.container').style.display = 'none';
     
     // Show download button
     //document.getElementById('download-data').style.display = 'block';
@@ -129,7 +129,7 @@ async function onSessionStarted(session) {
     xrSession.addEventListener('end', () => {
         canvas.style.display = 'none';
         //document.getElementById('download-data').style.display = 'none';
-        //document.getElementById('download-data').style.display = 'block';
+        //document.getElementById('download-data').style.display = 'block'; ########################################################################### ERR WITH DOWNLOAD BUTTON
 
         document.querySelector('.container').style.display = 'block';
         isRecording = false;

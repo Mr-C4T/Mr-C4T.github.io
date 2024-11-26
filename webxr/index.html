@@ -5,88 +5,155 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebXR Hand Tracking</title>
     <style>
-        body {
+        :root {
+            --bg-dark: #121212;
+            --neon-green: #39ff14;
+            --neon-green-shadow: rgba(57, 255, 20, 0.4);
+            --text-light: #e0e0e0;
+        }
+        * {
+            box-sizing: border-box;
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            margin: 0;
             overflow: hidden;
+        }
+        .container {
+            background-color: rgba(30, 30, 30, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 0 20px var(--neon-green-shadow);
+            border: 2px solid var(--neon-green);
+        }
+        .settings-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .setting {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .setting label {
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        input[type="checkbox"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--neon-green);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+        }
+        input[type="checkbox"]:checked {
+            background-color: var(--neon-green);
+        }
+        input[type="checkbox"]:checked::after {
+            content: '✔';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--bg-dark);
+        }
+        input[type="range"] {
+            width: 100%;
+            appearance: none;
+            background: transparent;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--neon-green);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 5px;
+            background: var(--neon-green);
+            border-radius: 3px;
+        }
+        .btn {
+            background-color: var(--neon-green);
+            color: var(--bg-dark);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:hover {
+            box-shadow: 0 0 15px var(--neon-green-shadow);
+            transform: scale(1.05);
         }
         #webgl-canvas {
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 1;
-            display: none;
             width: 100%;
             height: 100%;
-        }
-        .control-container {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            z-index: 10;
-        }
-        .btn {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        #joint-selection-container {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: rgba(255,255,255,0.9);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-height: 400px;
-            overflow-y: auto;
-            z-index: 20;
-        }
-        #joint-selection-container label {
-            display: inline-block;
-            margin-left: 5px;
-            margin-right: 10px;
-        }
-        #joint-selection-container input[type="checkbox"] {
-            margin-right: 5px;
-        }
-        #time-limit-slider-container {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-        #time-limit-slider-container label {
-            margin-right: 10px;
-        }
-        #time-limit-value {
-            margin-left: 10px;
-            font-weight: bold;
+            z-index: -1;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <canvas id="webgl-canvas"></canvas>
-
-    <div class="control-container">
-        <button id="start-xr" class="btn">Start XR Session</button>
-        <button id="download-data" class="btn" style="display: none;">Download Data</button>
+    <div class="container">
+        <div class="settings-panel">
+            <div class="setting">
+                <label>Max Recording Time (seconds): <span id="time-limit-value">10</span>s</label>
+                <input type="range" id="time-limit-slider" min="1" max="60" value="10">
+            </div>
+            
+            <div class="setting">
+                <label>Select Hand Joints to Track:</label>
+                <div id="joint-checkboxes" class="checkbox-grid">
+                    <!-- Joints will be dynamically populated by JavaScript -->
+                </div>
+            </div>
+            
+            <button id="start-xr" class="btn">Start XR Session</button>
+            <button id="download-data" class="btn" style="display: none;">Download Data</button>
+        </div>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <canvas id="webgl-canvas"></canvas>
+
+    <script type="module" src="webxr-hand-tracking.js"></script>
 </body>
 </html>

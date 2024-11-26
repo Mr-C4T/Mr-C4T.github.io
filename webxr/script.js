@@ -21,44 +21,14 @@ const HAND_JOINTS = [
     'pinky-metacarpal', 'pinky-phalanx-proximal', 'pinky-phalanx-intermediate', 'pinky-phalanx-distal', 'pinky-tip'
 ];
 
-// Create joint selection checkboxes
-function createJointSelectionUI() {
-    const container = document.createElement('div');
-    container.id = 'joint-selection-container';
-    container.style.position = 'fixed';
-    container.style.top = '10px';
-    container.style.left = '10px';
-    container.style.backgroundColor = 'rgba(255,255,255,0.8)';
-    container.style.padding = '10px';
-    container.style.borderRadius = '5px';
-    container.style.maxHeight = '200px';
-    container.style.overflowY = 'auto';
-
-    // Add time limit slider
-    const timeLimitLabel = document.createElement('label');
-    timeLimitLabel.textContent = 'Max Recording Time (seconds): ';
-    const timeLimitSlider = document.createElement('input');
-    timeLimitSlider.type = 'range';
-    timeLimitSlider.min = '1';
-    timeLimitSlider.max = '60';
-    timeLimitSlider.value = '10';
-    timeLimitSlider.id = 'time-limit-slider';
-    timeLimitSlider.addEventListener('input', (e) => {
-        maxRecordingTime = parseInt(e.target.value);
-        document.getElementById('time-limit-value').textContent = maxRecordingTime;
-    });
-
-    const timeLimitValue = document.createElement('span');
-    timeLimitValue.id = 'time-limit-value';
-    timeLimitValue.textContent = maxRecordingTime;
-
-    container.appendChild(timeLimitLabel);
-    container.appendChild(timeLimitSlider);
-    container.appendChild(timeLimitValue);
-    container.appendChild(document.createElement('br'));
-
-    // Create checkboxes for joint selection
+// Initialize UI elements
+function initializeUI() {
+    // Populate joint checkboxes
+    const jointCheckboxContainer = document.getElementById('joint-checkboxes');
     HAND_JOINTS.forEach(joint => {
+        const checkboxContainer = document.createElement('div');
+        checkboxContainer.classList.add('checkbox-container');
+        
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = `joint-${joint}`;
@@ -68,26 +38,31 @@ function createJointSelectionUI() {
         label.htmlFor = `joint-${joint}`;
         label.textContent = joint;
         
-        container.appendChild(checkbox);
-        container.appendChild(label);
-        container.appendChild(document.createElement('br'));
+        checkboxContainer.appendChild(checkbox);
+        checkboxContainer.appendChild(label);
+        jointCheckboxContainer.appendChild(checkboxContainer);
     });
 
-    document.body.appendChild(container);
-}
+    // Time limit slider
+    const timeLimitSlider = document.getElementById('time-limit-slider');
+    const timeLimitValue = document.getElementById('time-limit-value');
+    
+    timeLimitSlider.addEventListener('input', (e) => {
+        maxRecordingTime = parseInt(e.target.value);
+        timeLimitValue.textContent = maxRecordingTime;
+    });
 
-document.getElementById('start-xr').addEventListener('click', startXR);
-document.getElementById('download-data').addEventListener('click', downloadDataset);
+    // Start XR button
+    document.getElementById('start-xr').addEventListener('click', startXR);
+    
+    // Download data button
+    document.getElementById('download-data').addEventListener('click', downloadDataset);
+}
 
 async function startXR() {
     if (!navigator.xr) {
         alert("WebXR is not supported in this browser.");
         return;
-    }
-    
-    // Create joint selection UI if not already created
-    if (!document.getElementById('joint-selection-container')) {
-        createJointSelectionUI();
     }
     
     const supported = await navigator.xr.isSessionSupported('immersive-ar');
@@ -127,24 +102,36 @@ async function onSessionStarted(session) {
     
     xrSession.requestAnimationFrame(onXRFrame);
     
+    // Hide settings container
+    document.querySelector('.container').style.display = 'none';
+    
     xrSession.addEventListener('end', () => {
         canvas.style.display = 'none';
         document.getElementById('download-data').style.display = 'none';
+        document.querySelector('.container').style.display = 'block';
         isRecording = false;
         console.log("Session ended.");
     });
     
-    document.getElementById('start-xr').style.display = 'none';
     document.getElementById('download-data').style.display = 'block';
 }
 
 function onXRFrame(time, frame) {
+    // Check if session is still active
+    if (xrSession && xrSession.ended) return;
+
     xrSession.requestAnimationFrame(onXRFrame);
     
     // Check recording time limit
     if (isRecording && (time - recordingStartTime) / 1000 > maxRecordingTime) {
         isRecording = false;
         console.log("Recording time limit reached.");
+        
+        // Automatically end the XR session
+        if (xrSession) {
+            xrSession.end();
+        }
+        return;
     }
     
     const pose = frame.getViewerPose(referenceSpace);
@@ -195,3 +182,6 @@ function downloadDataset() {
     link.download = 'hand_tracking_dataset.json';
     link.click();
 }
+
+// Initialize UI when script loads
+initializeUI();

@@ -9,7 +9,7 @@ let camera = null;
 let referenceSpace = null;
 let dataset = [];  // Global dataset to persist data across sessions
 let recordingStartTime = 0;
-let maxRecordingTime = 10;
+let maxRecordingTime = 5;
 let isRecording = false;
 
 // Hand joints list

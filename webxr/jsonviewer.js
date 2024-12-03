@@ -10,7 +10,7 @@ fetch('hand.json') // Ensure 'hand.json' is in the same directory as 'index.html
     // Function to downsample data to 1/10th
     const downsample = (array, factor) => array.filter((_, index) => index % factor === 0);
 
-    const downsampleFactor = 10; // Show only 1/10th of the points
+    const downsampleFactor = 100; // Show only 1/10th of the points
 
     // Downsampled data for the first joint ("wrist")
     const positionX = downsample(jsonData.map(step => step.wrist.position.x), downsampleFactor);

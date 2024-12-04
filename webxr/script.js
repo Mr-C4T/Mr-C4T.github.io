@@ -52,6 +52,9 @@ function initializeUI() {
     
     // Download data button
     document.getElementById('download-data').addEventListener('click', downloadDataset);
+
+    // Download data button
+    document.getElementById('view-data').addEventListener('click', viewDataset);
 }
 
 // Start XR Session
@@ -195,6 +198,20 @@ function downloadDataset() {
     link.href = URL.createObjectURL(blob);
     link.download = 'hand_tracking_dataset.json';
     link.click();
+}
+
+function viewDataset() {
+    if (dataset.length === 0) {
+        alert("No data recorded. Start an XR session first.");
+        console.log("Dataset is empty at view attempt.");
+        return;
+    }
+
+    // Save the dataset in local storage
+    localStorage.setItem('handTrackingDataset', JSON.stringify(dataset));
+
+    // Open jsonviewer.html in a new tab
+    window.open('jsonviewer.html', '_blank');
 }
 
 // Initialize UI when script loads

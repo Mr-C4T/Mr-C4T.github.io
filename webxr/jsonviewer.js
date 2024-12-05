@@ -5,6 +5,13 @@ if (datasetJSON) {
     try {
         const jsonData = JSON.parse(datasetJSON); // Parse the JSON string
 
+        // Dynamically determine the first joint in the dataset
+        const firstJointName = Object.keys(jsonData[0])[0];
+        if (!firstJointName) {
+            throw new Error("Dataset is empty or has no joints.");
+        }
+        console.log(`Using first joint: ${firstJointName}`);
+
         // Function to downsample data
         const downsample = (array, factor) => array.filter((_, index) => index % factor === 0);
 
@@ -12,18 +19,18 @@ if (datasetJSON) {
         const desiredSteps = 50;
         const downsampleFactor = Math.ceil(totalSteps / desiredSteps);
 
-        // Downsampled data for the first joint ("wrist")
-        const positionX = downsample(jsonData.map(step => step.wrist.position.x), downsampleFactor);
-        const positionY = downsample(jsonData.map(step => step.wrist.position.y), downsampleFactor);
-        const positionZ = downsample(jsonData.map(step => step.wrist.position.z), downsampleFactor);
-        const orientationX = downsample(jsonData.map(step => step.wrist.orientation.x), downsampleFactor);
-        const orientationY = downsample(jsonData.map(step => step.wrist.orientation.y), downsampleFactor);
-        const orientationZ = downsample(jsonData.map(step => step.wrist.orientation.z), downsampleFactor);
+        // Downsampled data for the first joint
+        const positionX = downsample(jsonData.map(step => step[firstJointName].position.x), downsampleFactor);
+        const positionY = downsample(jsonData.map(step => step[firstJointName].position.y), downsampleFactor);
+        const positionZ = downsample(jsonData.map(step => step[firstJointName].position.z), downsampleFactor);
+        const orientationX = downsample(jsonData.map(step => step[firstJointName].orientation.x), downsampleFactor);
+        const orientationY = downsample(jsonData.map(step => step[firstJointName].orientation.y), downsampleFactor);
+        const orientationZ = downsample(jsonData.map(step => step[firstJointName].orientation.z), downsampleFactor);
 
         // Generate labels for the downsampled data
         const labels = downsample(
-          Array.from({ length: jsonData.length }, (_, i) => `Step ${i + 1}`),
-          downsampleFactor
+            Array.from({ length: jsonData.length }, (_, i) => `Step ${i + 1}`),
+            downsampleFactor
         );
 
         // Create the chart
@@ -34,7 +41,7 @@ if (datasetJSON) {
                 labels: labels,
                 datasets: [
                     {
-                        label: "Position X",
+                        label: `Position X (${firstJointName})`,
                         data: positionX,
                         borderColor: "rgba(0, 255, 0, 0.8)",
                         borderWidth: 2,
@@ -42,7 +49,7 @@ if (datasetJSON) {
                         tension: 0.1,
                     },
                     {
-                        label: "Position Y",
+                        label: `Position Y (${firstJointName})`,
                         data: positionY,
                         borderColor: "rgba(0, 200, 0, 0.8)",
                         borderWidth: 2,
@@ -50,7 +57,7 @@ if (datasetJSON) {
                         tension: 0.1,
                     },
                     {
-                        label: "Position Z",
+                        label: `Position Z (${firstJointName})`,
                         data: positionZ,
                         borderColor: "rgba(0, 150, 0, 0.8)",
                         borderWidth: 2,
@@ -58,7 +65,7 @@ if (datasetJSON) {
                         tension: 0.1,
                     },
                     {
-                        label: "Orientation X",
+                        label: `Orientation X (${firstJointName})`,
                         data: orientationX,
                         borderColor: "rgba(150, 0, 255, 0.8)",
                         borderWidth: 2,
@@ -66,7 +73,7 @@ if (datasetJSON) {
                         tension: 0.1,
                     },
                     {
-                        label: "Orientation Y",
+                        label: `Orientation Y (${firstJointName})`,
                         data: orientationY,
                         borderColor: "rgba(100, 0, 200, 0.8)",
                         borderWidth: 2,
@@ -74,7 +81,7 @@ if (datasetJSON) {
                         tension: 0.1,
                     },
                     {
-                        label: "Orientation Z",
+                        label: `Orientation Z (${firstJointName})`,
                         data: orientationZ,
                         borderColor: "rgba(50, 0, 150, 0.8)",
                         borderWidth: 2,

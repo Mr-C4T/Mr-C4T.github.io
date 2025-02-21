@@ -1,0 +1,297 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    transition: background-color 0.666s, color 0.666s;
+}
+
+/* Header */
+header {
+    background-color: #222;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+}
+
+.logo {
+    max-width: 100px;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+nav ul li {
+    margin: 0;
+}
+
+nav a, nav button {
+    color: #39FF14;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+}
+
+nav button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* Main Content */
+main {
+    padding: 2rem;
+}
+
+section {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+/* Services Section Styling */
+#services h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #39FF14;
+}
+
+.services-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.service-card {
+    background-color: #333;
+    color: #fff;
+    border-radius: 8px;
+    width: 280px;
+    padding: 1rem;
+    text-align: left;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.666s ease;
+}
+
+.service-card:hover {
+    transform: scale(1.05);
+}
+
+.service-image {
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+
+/* Footer */
+footer {
+    background-color: #222;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+}
+
+footer ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding-top: 1rem;
+}
+
+footer a {
+    color: #39FF14;
+}
+
+/* Dark Theme */
+.dark-theme {
+    background-color: #121212;
+    color: #fff;
+}
+
+.dark-theme a {
+    color: #39FF14;
+}
+
+/* Light Theme */
+.light-theme {
+    background-color: #fff;
+    color: #000;
+}
+
+.light-theme a {
+    color: #39FF14; /* Updated to neon green */
+}
+
+
+
+/* Contact Section */
+#contact {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.contact-button {
+    display: inline-block;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    background-color: #39FF14;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.666s;
+}
+
+
+/* Also add this to ensure the link stays black even with theme changes */
+.contact-button:link,
+.contact-button:visited {
+    color: #000;
+}
+
+.contact-button:hover {
+    background-color: #32CC12;
+}
+
+
+/* Follow Us Section */
+#follow {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.social-media-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.social-media-icons a {
+    color: #39FF14; /* Use your theme's green color */
+    font-size: 1.5rem;
+    transition: color 0.3s;
+}
+
+.social-media-icons a:hover {
+    color: #32CC12; /* Slightly darker green on hover */
+}
+
+
+.social-icons a {
+    margin: 0 10px;
+    font-size: 24px;
+    color: #39FF14;
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+.social-icons a:hover {
+    opacity: 0.7;
+}
+
+.hugging-face-icon {
+    font-size: 24px; /* Match size with other icons */
+        color: #39FF14;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .services-grid {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .service-card {
+        width: 100%;
+    }
+}
+/* Portfolio Carousel Styling */
+.carousel {
+    position: relative;
+    max-width: 800px;
+    margin: auto;
+    overflow: hidden;
+    border-radius: 12px; /* Added border radius to container */
+}
+
+.carousel-container {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.carousel-item {
+    min-width: 100%;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.carousel-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px; /* Added border radius to images */
+}
+
+.carousel-caption {
+    position: absolute;
+    bottom: 10%;
+    left: 10%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 15px;
+    width: 80%;
+    border-radius: 8px; /* Added border radius to caption */
+}
+
+.carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #39FF14; /* Changed to neon green */
+    color: #000; /* Changed text color to black for better contrast */
+    border: none;
+    font-size: 24px;
+    padding: 15px;
+    cursor: pointer;
+    border-radius: 50%; /* Made buttons circular */
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.carousel-button:hover {
+    background-color: #32CC12; /* Darker green on hover */
+}
+
+.carousel-button.prev {
+    left: 10px;
+}
+
+.carousel-button.next {
+    right: 10px;
+}
+
+

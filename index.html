@@ -1,120 +1,191 @@
 <!DOCTYPE html>
+<!--
+                              000               000                              
+                          00000000000       00000000000                          
+                       00000000 00000000 00000000 00000000                       
+                    00000000       00000000000       00000000                    
+                 00000000             00000             00000000                 
+              00000000                 0000                00000000              
+           0000000                     0000                    0000000           
+           0000                        0000                       0000           
+           0000         0000           0000          0000         0000           
+           0000        000000          0000         000000        0000           
+           0000        00000000        0000       00000000        0000           
+           0000            0000        0000       0000            0000           
+          00000            0000        0000       0000            00000          
+       0000000000000       0000        0000       0000       000000000000        
+    00000000 000000000     0000       00000       0000     000000000 00000000    
+ 00000000       00000      0000       00000       0000      00000       00000000 
+000000            0        0000       00000       0000        0            000000
+0000                     000000       00000       000000                     0000
+0000                  0000000         00000         0000000                  0000
+0000                000000            00000            000000                0000
+0000                0000              00000              0000                0000
+0000  00000         0000        0000  00000  0000        0000         00000  0000
+000000000000        0000       0000000000000000000       0000        000000000000
+00000000000         0000       0000000000000000000       0000         00000000000
+0000                0000              00000              0000                0000
+0000                00000             00000            000000                0000
+0000                000000000         00000         000000000                0000
+0000                    0000000       00000       0000000                    0000
+000000                     0000       00000       0000                     000000
+ 00000000       00000      0000       00000       0000      00000       0000000  
+     00000000000000000     0000        0000       0000     00000000000000000     
+        0000000000000      0000        0000       0000       000000000000        
+           0000            0000        0000       0000            0000           
+           0000            0000        0000       0000            0000           
+           0000        00000000        0000       00000000        0000           
+           0000        000000          0000         000000        0000           
+           0000        00000           0000          00000        0000           
+           0000000                    00000                    0000000           
+             00000000                 00000                 00000000             
+                 0000000              00000              0000000                 
+                    00000000       00000000000       00000000                    
+                       00000000 00000000 00000000 00000000                       
+                          00000000000       00000000000                          
+                              0000             0000                              
+                                                                                 
+                                                                                 
+                                                                                                                                                                  
+              000000000000000       0000               00000000000               
+              0000000000000000      0000              000000  00000              
+                          0000      0000              0000      000              
+                          0000      0000                       0000              
+              0000000000000000      0000                     00000               
+              00000000000000        0000                   000000                
+              0000     0000         0000                000000                   
+              0000      0000        0000               00000                     
+              0000       00000      0000  00000000    0000000000000              
+              0000        00000     0000  00000000    0000000000000              
+ --> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Learning Laboratory</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="dark-theme">
+    <header>
+        <img src="logo.PNG" alt="Robot Learning Laboratory Logo" class="logo">
+        <h1>Robot Learning Laboratory</h1>
+        <nav>
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#follow">Follow us</a></li>
+                <li><a href="#" id="theme-toggle">Change Theme</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="about">
+            <h2>About Us</h2>
+            <p>Our mission is to research and develop AI-driven robotic systems utilizing cutting-edge machine learning techniques and rapid prototyping to perform previously impossible task.</p>
+        </section>
+        <section id="services">
+            <h2>Our Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>Robotic Systems Development</h3>
+		    <br>
+                    <img src="robotics2.png" alt="Robotic Systems" class="service-image">
+                    <p>We specialize in designing and developing advanced robotic systems. Our team provides guidance on control algorithms, hardware integration, and software development to create efficient and reliable robots tailored to your needs.</p>
+                </div>
+                <div class="service-card">
+                    <h3>Embedded Electronics for Robotics</h3>
+                    <br>
+                    <img src="electronics.jpeg" alt="Embedded Electronics" class="service-image">
+                    <p>Our expertise in embedded electronics allows us to create robust and efficient control systems for robotics applications. We design custom PCBs and integrate sensors and actuators to optimize performance and functionality.</p>
+                </div>
+                <div class="service-card">
+                    <h3>3D Printing and Prototyping</h3>
+                    <br>
+                    <img src="3dprinting.png" alt="3D Printing" class="service-image">
+                    <p>Utilize our 3D printing services to rapidly prototype robotic components and systems. We provide high-quality prints that help you visualize and test designs quickly, allowing for faster iterations and innovation.</p>
+                </div>
+                <div class="service-card">
+                    <h3>AI Solutions for robots</h3>
+                    <br>
+                    <img src="ai.png" alt="AI Solutions" class="service-image">
+                    <p>We offer state-of-the-art AI solutions specifically designed for robotics applications. Our services include developing machine learning models and integrating AI into robotic systems for enhanced decision-making and autonomy.</p>
+                </div>
+            </div>
+        </section>
+        <section id="portfolio">
+    <h2>Portfolio</h2>
+    <div class="carousel">
+        <div class="carousel-container">
+            <!-- Portfolio item 1 -->
+            <div class="carousel-item">
+                <img src="robotics.png" alt="Project 1">
+                <div class="carousel-caption">
+                    <h3>3D printed manipulator</h3>
+                    <p>This 6DOF robot arm has been designed to be a very cheap and easy to build manipulator arm framework for our AI research</p>
+                </div>
+            </div>
+            <!-- Portfolio item 2 -->
+            <div class="carousel-item">
+                <img src="vr.jpeg" alt="Project 2">
+                <div class="carousel-caption">
+                    <h3>3D hand tracking for dataset</h3>
+        		<a href="https://mr-c4t.github.io/webxr/" target="_blank">
+                            <p>Go to this link to test our VR hand tracking data collection tool (need VR headset)</p>
+		        </a>
+                </div>
+            </div>
+            <!-- Portfolio item 3 -->
+            <div class="carousel-item">
+                <img src="synapse.jpg" alt="Project 3">
+                <div class="carousel-caption">
+                    <h3>SynapsView🧠</h3>
+                <a href="https://github.com/Mr-C4T/SynapsView/" target="_blank">
+                            <p>Visualize your sklearn neural network with this python script</p>
+                </a>
+                </div>
+            </div>
+            <!-- Add more items as needed -->
+        </div>
+        <!-- Carousel navigation buttons -->
+        <button class="carousel-button prev" aria-label="Previous slide">&#10094;</button>
+        <button class="carousel-button next" aria-label="Next slide">&#10095;</button>
+    </div>
+</section>
 
-<!--#HELLO FRIEND...-->
-<html>
-  <head>
-    <title>Mr-Cat</title>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-<header>
-  <img src="img/logo.png" alt="Logo" id="logo">
-  <h1>Mr-Cat</h1>
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <a href="mailto:info@yourstartup.com" class="contact-button">Send an Email</a>
+        </section>
+              <section id="follow">
+    <h2>Follow Us</h2>
+    <div class="social-media-icons">
+        <a href="https://linkedin.com/in/your-profile" target="_blank" aria-label="LinkedIn">
+            <i class="fab fa-linkedin"></i>
+        </a>
+        <a href="https://youtube.com/your-profile" target="_blank" aria-label="Twitter">
+            <i class="fab fa-youtube"></i>
+        </a>
+        <a href="https://github.com/your-profile" target="_blank" aria-label="GitHub">
+            <i class="fab fa-github"></i>
+        </a>
+        <a href="https://huggingface.co/your-profile" target="_blank" title="Hugging Face">
+            <span class="hugging-face-icon">🤗</span>
+        </a>
 
-</header>
-
-<nav>
-  <button class="btn">
-    <a href="#projet">
-      <span class="btn__content">Projects</span>
-      <span class="btn__glitch"></span>
-      <span class="btn__label">r25</span>
-    </a>
-  </button> 
-  <button class="btn">
-    <a href="#contacts">
-      <span class="btn__content">Contacts</span>
-      <span class="btn__glitch"></span>
-      <span class="btn__label">r26</span>
-    </a>
-  </button> 
-  <button class="btn">
-    <a href="https://www.instagram.com/mr_c_4_t/">
-      <span class="btn__content">Instagram</span>
-      <span class="btn__glitch"></span>
-      <span class="btn__label">r27</span>
-    </a>
-  </button> 
-</nav>
-
-  <div id="introduction">
-    <p>Bienvenue sur mon site web dédié à la présentation de mes projets d'informatique, d'éléctronique, de robotique et d'IA.</p>
-    <p>Découvrez ici mes dernières réalisations et projets en cours.</p>
-  </div>
-
-    <main id="projet">
-      <section id="projet2">
-        <h2>synapsView.py 🧠</h2>
-        <p>Réalisation d'une mini librairie python utilisant Matplotlib pour la visualisation de modèles de réseaux de neurones (sklearn).</p>
-        <a href="https://github.com/Mr-C4T/SynapsView/"><img src="img/synapse.jpg" alt="Image du projet 2"></a>
-      </section>
-
-      <section id="projet2">
-        <h2>CryptoViper.py 🐍</h2>
-        <p>Script python permettant l'automatisation du traitement de fichiers pcap pour tester la sécurité des réseaux WPA2</p>
-        <a href="https://github.com/Mr-C4T/CryptoViper/"><img src="img/viper.png" alt="Image du projet 2"></a>
-      </section>
-      
-      <section id="projet1">
-        <h2>electric-staff⚡</h2>
-        <p>
-          Générateur électrostatique intégré dans un tube d'acrylique. Il est basé sur le fonctionnement du <a href="https://fr.wikipedia.org/wiki/G%C3%A9n%C3%A9rateur_de_Van_de_Graaff">générateur de Van de Graaff</a> qui a été utilisé pour alimenter les premiers accélérateurs de particules. Il peut délivrer une différence de potentiel d'environ 50.000 V <a href="https://www.instagram.com/p/Ct9-PacAOpI/">(vidéo)</a> entre la sphère et le sol grâce à l'effet triboélectrique (électricité statique).
-        </p>
-        <p>
-          J'ai modélisé les pièces sur Fusion360 puis je les ai imprimées en PLA sur ma fidèle Ender3. Pour l'électronique, j'ai utilisé un Arduino Nano, des LEDs Neopixels et un ESC de 30A bas de gamme pour contrôler le moteur brushless.
-          Le moteur en tournant va entraîner le mécanisme qui va générer la charge électrostatique grâce au frottement entre la courroie élastique et les poulies en nylon et en téflon.</p>
-        <p>
-          (Ça ne sert à rien... c'est juste cool d'avoir un bâton magique qui peut lancer des éclairs XD)
-        </p>
-        <img src="img/arc.png" alt="Image du projet 3">
-      </section>
-
-      <section id="projet1">
-        <h2>BrainPCB ⚡</h2>
-        <p>Petit shield Arduino permettant de contrôler 8 servos moteurs conçus sur EasyEDA et fabriqués maison grâce à ma découpeuse laser et une gravure chimique à l'acide (HCl).</p> 
-        <img src="img/carte.jpg" alt="Image du projet 1">
-      </section>  
-
-      <section id="projet2">
-        <h2>Jarvis.py 🎤</h2>
-        <p>Assistant vocal fonctionnant en local sur une raspberry pi 3 grâce à la librairie python Picovoice.</p>
-        <img src="img/jarvis.jpg" alt="Image du projet 2">
-      </section>
-
-      <section id="projet3">
-        <h2>Site web BDE 🐿️</h2>
-        <p>Site web developpé pour l'association du bureau des éleves de LSH de l'université de Rouen.</p>
-        <p></p><a href="https://bdelshrouen.github.io/">https://bdelshrouen.github.io/</a></p>
-        <img src="img/bde.png" alt="Image du projet 3">
-      </section>
-
-      <section id="projet3">
-        <h2>SpiderBot 🕷️</h2>
-        <p>Projet de robotique utilisant une IA de reconnaissance vocale pour contrôler un robot quadripède imprimé en 3D (<a href="https://www.thingiverse.com/jasonleung8866/designs">modèle trouvé sur Thingiverse</a>), à l'aide d'une raspberry pi 0W et de la librairie python Picovoice.</p>
-        <img src="img/spidi.jpg" alt="Image du projet 3">
-      </section>
-
-      <section id="projet4">
-        <h2>Sandevistan 🤖</h2>
-        <p>Prothèse cybernétique dorsale de mon costume d'hallowen inspiré de l'univers de Cyberpunk 2077. Projet mêlant impression 3D, arduino et LEDs RGB néopixels.</p>
-        <img src="img/sandevistan.gif" alt="Image du projet 3">
-      </section>
-
-	  <!-- <section id="">
-		<h2></h2>
-    <p></p>
-		<video width="560" height="315" controls>
-			<source src="" type="video/mp4">
-		</video>
-      </section>-->
-
-
-
-
+    </div>
+</section>
     </main>
-    <footer id="contacts">
-      <p>N'hésitez pas à me contacter par mail si vous avez des questions ou si vous avez besoin d'aide pour vos projets scientifiques/artistiques : <a href="mailto:bato470@gmail.com"><b>bato470@gmail.com</b></a></p>
+    <footer>
+        <p>&copy; 2024 Robot Learning Laboratory. All rights reserved.</p>
+        <ul>
+            <li><a href="#legal">Mentions légales</a></li>
+        </ul>
     </footer>
     <script src="script.js"></script>
-  </body>
+    <script src="carousel.js"></script>
+</body>
 </html>
+

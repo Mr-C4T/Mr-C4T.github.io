@@ -182,7 +182,7 @@ footer a {
 
 .social-media-icons a {
     color: #39FF14; /* Use your theme's green color */
-    font-size: 3rem;
+    font-size: 1.5rem;
     transition: color 0.3s;
 }
 
@@ -193,7 +193,7 @@ footer a {
 
 .social-icons a {
     margin: 0 10px;
-    font-size: 24px;
+    font-size: 50px;
     color: #39FF14;
     text-decoration: none;
     transition: opacity 0.3s;
@@ -204,7 +204,7 @@ footer a {
 }
 
 .hugging-face-icon {
-    font-size: 24px; /* Match size with other icons */
+    font-size: 50px; /* Match size with other icons */
         color: #39FF14;
 }
 

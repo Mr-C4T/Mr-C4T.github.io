@@ -230,6 +230,30 @@
     50%       { opacity: 0; }
   }
 
+  .hero-keyword-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 1.5rem 0 2.5rem;
+  }
+
+  .hero-kw {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--white);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .hero-kw-sep {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--cyan);
+    opacity: 0.5;
+  }
+
   .hero-actions {
     display: flex;
     gap: 1rem;
@@ -271,34 +295,6 @@
     color: var(--white);
   }
 
-  .hero-stat-row {
-    display: flex;
-    gap: 2.5rem;
-    margin-top: 4rem;
-    padding-top: 2.5rem;
-    border-top: 1px solid var(--border);
-  }
-
-  .hero-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .hero-stat-num {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--white);
-  }
-
-  .hero-stat-label {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
   /* SECTION HEADERS */
   .section-header {
     display: flex;
@@ -328,8 +324,50 @@
     margin: 0;
   }
 
-  /* SKILLS */
-  .skills-grid {
+  /* OFFER LIST */
+  .offer-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .offer-row {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    gap: 0 1.5rem;
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .offer-row:first-child { border-top: 1px solid var(--border); }
+
+  .offer-num {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--cyan);
+    padding-top: 0.15rem;
+  }
+
+  .offer-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .offer-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.01em;
+  }
+
+  .offer-desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 580px;
+  }
+
+  /* SKILLS (legacy, kept for safety) */
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
     gap: 1px;
@@ -574,31 +612,17 @@
 <section id="hero">
   <div class="scanline"></div>
   <div class="container">
-    <p class="hero-label">Robot Learning Laboratory</p>
+    <p class="hero-label">Baptiste Lubrano Lavadera</p>
     <h1 class="hero-title">
-      <span class="glitch" data-text="Baptiste">Baptiste</span><br>
+      <span class="glitch" data-text="Baptiste">AI robotics engineering</span><br>
       <span class="thin">Lubrano&nbsp;Lavadera</span>
     </h1>
     <p class="hero-sub">
-      Hardware × Software × AI — engineering systems at the boundary of robotics and machine learning<span class="cursor"></span>
+      Open source. Open hardware. Real-world AI.<span class="cursor"></span>
     </p>
     <div class="hero-actions">
-      <a href="https://rl2.fr/CV_BaptisteLL.pdf" class="btn btn-primary" target="_blank">Download CV</a>
-      <a href="mailto:baptiste.lubranolavadera@gmail.com" class="btn btn-ghost">Get in touch</a>
-    </div>
-    <div class="hero-stat-row">
-      <div class="hero-stat">
-        <span class="hero-stat-num">13th</span>
-        <span class="hero-stat-label">LeRobot Hackathon 2025</span>
-      </div>
-      <div class="hero-stat">
-        <span class="hero-stat-num">7+</span>
-        <span class="hero-stat-label">Robotic platforms</span>
-      </div>
-      <div class="hero-stat">
-        <span class="hero-stat-num">Open</span>
-        <span class="hero-stat-label">Source first</span>
-      </div>
+      <a href="mailto:baptiste.lubranolavadera@gmail.com" class="btn btn-primary">Hire me</a>
+      <a href="https://rl2.fr/CV_BaptisteLL.pdf" class="btn btn-ghost" target="_blank">Download CV</a>
     </div>
   </div>
 </section>
@@ -610,59 +634,42 @@
   <div class="container">
     <div class="section-header">
       <span class="section-tag">01 /</span>
-      <h2 class="section-title">Skills</h2>
+      <h2 class="section-title">What I do</h2>
     </div>
-    <div class="skills-grid">
-      <div class="skill-card">
-        <div class="skill-icon">sys::robotics</div>
-        <div class="skill-name">Robotics</div>
-        <p class="skill-desc">ROS-based systems, industrial arms, mobile robots, and custom-built platforms. From kinematics to full-stack robot software.</p>
-        <div class="skill-tags">
-          <span class="tag">ROS</span>
-          <span class="tag">Python</span>
-          <span class="tag">C++</span>
+    <div class="offer-list">
+
+      <div class="offer-row">
+        <span class="offer-num">—</span>
+        <div class="offer-body">
+          <span class="offer-name">Physical AI integration</span>
+          <span class="offer-desc">Bring AI models into real hardware: robot arms, mobile platforms, embedded systems. From proof-of-concept to working prototype.</span>
         </div>
       </div>
-      <div class="skill-card">
-        <div class="skill-icon">sys::hardware</div>
-        <div class="skill-name">Electronics & Embedded</div>
-        <p class="skill-desc">PCB design, embedded firmware, and sensor integration across Arduino, ESP32, and custom MCU architectures.</p>
-        <div class="skill-tags">
-          <span class="tag">ESP32</span>
-          <span class="tag">PCB</span>
-          <span class="tag">Arduino</span>
+
+      <div class="offer-row">
+        <span class="offer-num">—</span>
+        <div class="offer-body">
+          <span class="offer-name">Open hardware design</span>
+          <span class="offer-desc">PCB layout, embedded firmware, mechanical CAD, and 3D-printed structures. Full stack from schematic to assembled unit.</span>
         </div>
       </div>
-      <div class="skill-card">
-        <div class="skill-icon">sys::fabrication</div>
-        <div class="skill-name">Rapid Prototyping</div>
-        <p class="skill-desc">CAD-to-fabrication workflows: 3D printing, topology optimisation, CNC machining, and laser cutting.</p>
-        <div class="skill-tags">
-          <span class="tag">Fusion 360</span>
-          <span class="tag">FreeCAD</span>
-          <span class="tag">3D Print</span>
+
+      <div class="offer-row">
+        <span class="offer-num">—</span>
+        <div class="offer-body">
+          <span class="offer-name">Robot learning pipelines</span>
+          <span class="offer-desc">Data collection, imitation learning, and deployment of manipulation policies on open-source robot platforms.</span>
         </div>
       </div>
-      <div class="skill-card">
-        <div class="skill-icon">sys::ml</div>
-        <div class="skill-name">ML / AI</div>
-        <p class="skill-desc">Training and deploying neural networks for robotic control and real-time object detection. PyTorch and TensorFlow pipelines.</p>
-        <div class="skill-tags">
-          <span class="tag">PyTorch</span>
-          <span class="tag">TensorFlow</span>
-          <span class="tag">Deep Learning</span>
+
+      <div class="offer-row">
+        <span class="offer-num">—</span>
+        <div class="offer-body">
+          <span class="offer-name">Rapid prototyping & consulting</span>
+          <span class="offer-desc">Fast iteration on early-stage ideas. Technical scoping, architecture decisions, and hands-on builds for startups and research teams.</span>
         </div>
       </div>
-      <div class="skill-card">
-        <div class="skill-icon">sys::software</div>
-        <div class="skill-name">Software Engineering</div>
-        <p class="skill-desc">Real-time data processing, Linux and Windows systems, networking, and security auditing. C, Python, and C++ at the core.</p>
-        <div class="skill-tags">
-          <span class="tag">Python</span>
-          <span class="tag">C / C++</span>
-          <span class="tag">Linux</span>
-        </div>
-      </div>
+
     </div>
   </div>
 </section>

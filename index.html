@@ -100,11 +100,23 @@
   #hero::before {
     content: '';
     position: absolute;
-    top: -200px; right: -200px;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(57,255,20,0.04) 0%, transparent 70%);
+    inset: 0;
+    background: url('https://rl2.fr/AB-SO-DARK.png') center center / cover no-repeat;
+    opacity: 0.18;
     pointer-events: none;
+    z-index: 0;
   }
+
+  #hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(5,5,7,0.3) 0%, rgba(5,5,7,0.85) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #hero .container { position: relative; z-index: 1; }
 
   .hero-label {
     font-family: var(--mono);
@@ -124,29 +136,74 @@
     margin-bottom: 0.5rem;
   }
 
-  .hero-title .clip-text {
-    background-image: url('https://rl2.fr/AB-SO-DARK.png');
-    background-size: 120%;
-    background-position: center;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    animation: bgShift 8s ease-in-out infinite alternate;
-    display: inline-block;
-  }
-
-  @keyframes bgShift {
-    0%   { background-position: 20% 40%; background-size: 120%; }
-    50%  { background-position: 60% 60%; background-size: 140%; }
-    100% { background-position: 80% 20%; background-size: 125%; }
-  }
-
   .hero-title .thin {
     font-weight: 300;
     color: var(--muted);
-    -webkit-text-fill-color: var(--muted);
     display: block;
+  }
+
+  /* GLITCH */
+  .glitch {
+    position: relative;
+    display: inline-block;
+    animation: glitch-main 6s infinite;
+  }
+
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    overflow: hidden;
+    color: var(--white);
+  }
+
+  .glitch::before {
+    left: 2px;
+    text-shadow: -1px 0 #39ff14;
+    clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+    animation: glitch-top 6s infinite;
+  }
+
+  .glitch::after {
+    left: -2px;
+    text-shadow: 1px 0 #ff2020;
+    clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+    animation: glitch-bot 6s infinite;
+  }
+
+  @keyframes glitch-main {
+    0%, 90%, 100% { transform: none; }
+    92%  { transform: skewX(-1deg) translateX(2px); }
+    94%  { transform: skewX(1deg) translateX(-2px); }
+    96%  { transform: none; }
+    97%  { transform: translateX(3px) skewX(-2deg); }
+    98%  { transform: none; }
+  }
+
+  @keyframes glitch-top {
+    0%, 88%, 100% { transform: none; opacity: 0; }
+    89%  { transform: translateX(-4px); opacity: 0.9; }
+    90%  { transform: translateX(4px);  opacity: 0.7; }
+    91%  { transform: translateX(-2px); opacity: 0.9; }
+    93%  { transform: none; opacity: 0; }
+    96%  { transform: translateX(5px);  opacity: 0.8; }
+    97%  { opacity: 0; }
+  }
+
+  @keyframes glitch-bot {
+    0%, 88%, 100% { transform: none; opacity: 0; }
+    89%  { transform: translateX(4px);  opacity: 0.8; }
+    91%  { transform: translateX(-4px); opacity: 0.9; }
+    93%  { transform: none; opacity: 0; }
+    95%  { transform: translateX(-3px); opacity: 0.7; }
+    97%  { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glitch, .glitch::before, .glitch::after { animation: none; }
+    .glitch::before, .glitch::after { display: none; }
   }
 
   .hero-sub {
@@ -519,7 +576,7 @@
   <div class="container">
     <p class="hero-label">Robot Learning Laboratory</p>
     <h1 class="hero-title">
-      <span class="clip-text">Baptiste</span><br>
+      <span class="glitch" data-text="Baptiste">Baptiste</span><br>
       <span class="thin">Lubrano&nbsp;Lavadera</span>
     </h1>
     <p class="hero-sub">

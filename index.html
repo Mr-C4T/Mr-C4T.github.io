@@ -1,187 +1,725 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot Learning Laboratory</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot Learning Laboratory — Baptiste Lubrano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black:    #050507;
+    --surface:  #0d0d14;
+    --card:     #111120;
+    --border:   #1e1e32;
+    --border-h: #2a2a44;
+    --cyan:     #39ff14;
+    --cyan-dim: #39ff1422;
+    --cyan-mid: #39ff1455;
+    --white:    #e8e8f0;
+    --muted:    #6b6b88;
+    --mono:     'JetBrains Mono', monospace;
+    --sans:     'Space Grotesk', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 2.5rem;
+    background: rgba(5,5,7,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--cyan);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--white); }
+
+  /* LAYOUT */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  section { padding: 5rem 0; }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(57,255,20,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--cyan);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-title .clip-text {
+    background-image: url('https://rl2.fr/AB-SO-DARK.png');
+    background-size: 120%;
+    background-position: center;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: bgShift 8s ease-in-out infinite alternate;
+    display: inline-block;
+  }
+
+  @keyframes bgShift {
+    0%   { background-position: 20% 40%; background-size: 120%; }
+    50%  { background-position: 60% 60%; background-size: 140%; }
+    100% { background-position: 80% 20%; background-size: 125%; }
+  }
+
+  .hero-title .thin {
+    font-weight: 300;
+    color: var(--muted);
+    -webkit-text-fill-color: var(--muted);
+    display: block;
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    font-weight: 300;
+    color: var(--muted);
+    margin: 1.75rem 0 2.5rem;
+    max-width: 520px;
+    line-height: 1.5;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    background: var(--cyan);
+    margin-left: 3px;
+    vertical-align: text-bottom;
+    animation: blink 1.1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.75rem 1.75rem;
+    border-radius: 2px;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: var(--cyan);
+    color: var(--black);
+    border: 1px solid var(--cyan);
+  }
+
+  .btn-primary:hover {
+    background: transparent;
+    color: var(--cyan);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border-h);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--cyan-mid);
+    color: var(--white);
+  }
+
+  .hero-stat-row {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .hero-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .hero-stat-num {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  .hero-stat-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* SECTION HEADERS */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--cyan);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0;
+  }
+
+  /* SKILLS */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .skill-card {
+    background: var(--surface);
+    padding: 2rem;
+    transition: background 0.2s;
+  }
+
+  .skill-card:hover {
+    background: var(--card);
+  }
+
+  .skill-icon {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .skill-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .skill-desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1rem;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--cyan);
+    background: var(--cyan-dim);
+    border: 1px solid var(--cyan-mid);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  /* PORTFOLIO */
+  .project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .project-item {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 0 2rem;
+    align-items: start;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .project-item:first-child { border-top: 1px solid var(--border); }
+
+  .project-item:hover .project-name { color: var(--cyan); }
+  .project-item:hover .project-num  { color: var(--cyan); }
+
+  .project-num {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--border-h);
+    padding-top: 0.2rem;
+    transition: color 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .project-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.01em;
+    transition: color 0.2s;
+  }
+
+  .project-desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.5;
+    max-width: 500px;
+  }
+
+  .project-badge {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--cyan);
+    background: var(--cyan-dim);
+    border: 1px solid var(--cyan-mid);
+    padding: 0.25rem 0.5rem;
+    border-radius: 2px;
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+    margin-top: 0.2rem;
+  }
+
+  /* CONTACT */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  .contact-block {
+    background: var(--surface);
+    padding: 2rem;
+  }
+
+  .contact-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .contact-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--white);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .contact-value:hover { color: var(--cyan); }
+
+  .social-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .social-link {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 2px;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .social-link:hover {
+    border-color: var(--cyan-mid);
+    color: var(--white);
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* SCAN LINE subtle on hero */
+  .scanline {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(57,255,20,0.008) 2px,
+      rgba(57,255,20,0.008) 4px
+    );
+    pointer-events: none;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { gap: 1.25rem; }
+    .container { padding: 0 1.25rem; }
+    section { padding: 3.5rem 0; }
+    .hero-stat-row { gap: 1.5rem; flex-wrap: wrap; }
+    .skills-grid { grid-template-columns: 1fr; }
+    .project-item { grid-template-columns: 60px 1fr; }
+    .project-badge { display: none; }
+    .contact-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 0.75rem; text-align: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor { animation: none; opacity: 1; }
+  }
+</style>
 </head>
-<body class="dark-theme">
-    <header>
-        <img src="logo.PNG" alt="Robot Learning Laboratory Logo" class="logo">
-        <h1>Robot Learning Laboratory (by MrCAT)</h1>
-        <nav>
-            <ul>
-                <li><a href="#about">About</a></li>
-                <li><a href="#services">Skills</a></li>
-                <li><a href="#portfolio">Portfolio</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="#follow">Follow me</a></li>
-                <li><a href="#" id="theme-toggle">Change Theme</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section id="about">
-            <!--<img src="pic.jpg" width="300" style="border-radius: 15px;"> --> 
-	    <img src="body-render-noback.png" width="300" style="border-radius: 15px;">
-            <h2>About Me</h2>
-            <p>With a Background in computer science engineering and robotics research. I work at the intersection of hardware, software and AI, with a strong interest in open-source projects</p>        </section>
-        <section id="services">
-            <h2>Skills</h2>
-            <div class="services-grid">
-                <div class="service-card">
-                    <h3>🤖 Robotics</h3>
-                    <br>
-                    <img src="ABSO-TRIPOD-LIME.png" alt="Robotics Systems" class="service-image">
-                    <p>Proficient in ROS, Python, C++ and AI for robotics applications. Working on various robotic platforms including industrial arms, mobile robots, and custom-built systems.</p>
-                </div>
-        
-                <div class="service-card">
-                    <h3>⚡ Electronics & Embedded Systems</h3>
-                    <br>
-                    <img src="myoware_LeCyborg.jpg" alt="Embedded Electronics" class="service-image">
-                    <p>Embedded system design, PCB development, and microcontroller programming. A lot of Experience with Arduino, ESP32, and sensor integration.</p>
-                </div>
-        
-                <div class="service-card">
-                    <h3>🔩 Rapid prototyping</h3>
-                    <br>
-                    <img src="electronics.jpeg" alt="3D Printing" class="service-image">
-                    <p>Proficient in CAD software (Fusion 360, FreeCAD), 3D printing and topology optimisation workflow. Experience with CNC machining, laser cuttting and rapid prototyping methodologies.</p>
-                </div>
-        
-                <div class="service-card">
-                    <h3>🧠 ML / AI</h3>
-                    <br>
-                    <img src="synapse.jpg" alt="AI Solutions" class="service-image">
-                    <p>Experienced in training and deploying neural networks using PyTorch and TensorFlow. Specialized in deep learning for robotic control and real-time object detection.</p>
-                </div>
-        
-                <div class="service-card">
-                    <h3>💻 Software Development</h3>
-                    <br>
-                    <img src="software.png" alt="Software Development" class="service-image">
-                    <p>Software development capabilities with focus on real-time data processing using Python, C, C++. Experience with Windows and Linux systems, networking and security auditing.</p>
-                </div>
-        
-            </div>
-        </section>
-        <section id="portfolio">
-    <h2>Portfolio</h2>
-    <div class="carousel">
-        <div class="carousel-container">
+<body>
 
-            <!-- Portfolio item 0 -->
-            <div class="carousel-item">
-                <img src="LeCyborg.jpg" alt="Project 0">
-                <div class="carousel-caption">
-                    <h3>LeCyborg</h3>
-                    <a href="https://github.com/Mr-C4T/LeCyborg" target="_blank">
-                        <p>🦾 AI-powered third-arm prosthesis</p>
-            </a>
-        </p>🏆 13ᵗʰ among the 30 winning teams of the LeRobot Worldwide Hackathon 2025 🤗</p>               </div>
-            </div>
-		
-            <!-- Portfolio item 1 -->
-            <div class="carousel-item">
-                <img src="AB-SO-DARK.png" alt="Project 1">
-                <div class="carousel-caption">
-                    <h3>AB-SO-BOT</h3>
-                    <a href="https://github.com/Mr-C4T/AB-SO-BOT" target="_blank">
-                        <p>Aluminium Body for Standard Open Arm (SO-ARM100)</p>
-            </a>
-                </div>
-            </div>
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">RL² / MrCAT</a>
+  <ul class="nav-links">
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
 
-            <!-- Portfolio item 2 -->
-            <div class="carousel-item">
-                <img src="robotics2.png" alt="Project 2">
-                <div class="carousel-caption">
-                    <h3>3D printed manipulator</h3>
-                    <p>This 7DOF robot arm has been designed to be a very cheap and easy to build 3D printed manipulator arm framework for my AI research</p>
-                </div>
-            </div>
-            <!-- Portfolio item 3 -->
-            <div class="carousel-item">
-                <img src="vr.jpeg" alt="Project 3">
-                <div class="carousel-caption">
-                    <h3>Hand tracking for 3D dataset</h3>
-        		<a href="https://mr-c4t.github.io/webxr/" target="_blank">
-                            <p>Go to this link to test my VR hand tracking data collection tool (need VR headset)</p>
-		        </a>
-                </div>
-            </div>
-            <!-- Portfolio item 4 -->
-            <div class="carousel-item">
-                <img src="synapse.jpg" alt="Project 4">
-                <div class="carousel-caption">
-                    <h3>SynapsView🧠</h3>
-                <a href="https://github.com/Mr-C4T/SynapsView/" target="_blank">
-                            <p>Visualize your sklearn neural network with this python script</p>
-                </a>
-                </div>
-            </div>
-            <!-- Portfolio item 5 -->
-            <div class="carousel-item">
-                <img src="FinalDarkDraw.png" alt="Project 5">
-                <div class="carousel-caption">
-                    <h3>Quadruped robot</h3>
-                <a href="https://www.thingiverse.com/thing:6759714" target="_blank">
-                            <p>Go here to download the files and build your own robot!</p>
-                </a>
-                </div>
-            </div>
-            <!-- Portfolio item 6 -->
-            <div class="carousel-item">
-                <img src="cyberdeck2.jpg" alt="Project 6">
-                <div class="carousel-caption">
-                    <h3>Pi3 cyberdeck</h3>
-                <a href="https://www.instagram.com/mr_c_4_t/" target="_blank">
-                            <p>Check my Instagram for more projects...</p>
-                </a>
-                </div>
-            </div>
-            <!-- Add more items as needed -->
+<!-- HERO -->
+<section id="hero">
+  <div class="scanline"></div>
+  <div class="container">
+    <p class="hero-label">Robot Learning Laboratory</p>
+    <h1 class="hero-title">
+      <span class="clip-text">Baptiste</span><br>
+      <span class="thin">Lubrano&nbsp;Lavadera</span>
+    </h1>
+    <p class="hero-sub">
+      Hardware × Software × AI — engineering systems at the boundary of robotics and machine learning<span class="cursor"></span>
+    </p>
+    <div class="hero-actions">
+      <a href="https://rl2.fr/CV_BaptisteLL.pdf" class="btn btn-primary" target="_blank">Download CV</a>
+      <a href="mailto:baptiste.lubranolavadera@gmail.com" class="btn btn-ghost">Get in touch</a>
+    </div>
+    <div class="hero-stat-row">
+      <div class="hero-stat">
+        <span class="hero-stat-num">13th</span>
+        <span class="hero-stat-label">LeRobot Hackathon 2025</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">7+</span>
+        <span class="hero-stat-label">Robotic platforms</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">Open</span>
+        <span class="hero-stat-label">Source first</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">01 /</span>
+      <h2 class="section-title">Skills</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <div class="skill-icon">sys::robotics</div>
+        <div class="skill-name">Robotics</div>
+        <p class="skill-desc">ROS-based systems, industrial arms, mobile robots, and custom-built platforms. From kinematics to full-stack robot software.</p>
+        <div class="skill-tags">
+          <span class="tag">ROS</span>
+          <span class="tag">Python</span>
+          <span class="tag">C++</span>
         </div>
-        <!-- Carousel navigation buttons -->
-        <button class="carousel-button prev" aria-label="Previous slide">&#10094;</button>
-        <button class="carousel-button next" aria-label="Next slide">&#10095;</button>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">sys::hardware</div>
+        <div class="skill-name">Electronics & Embedded</div>
+        <p class="skill-desc">PCB design, embedded firmware, and sensor integration across Arduino, ESP32, and custom MCU architectures.</p>
+        <div class="skill-tags">
+          <span class="tag">ESP32</span>
+          <span class="tag">PCB</span>
+          <span class="tag">Arduino</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">sys::fabrication</div>
+        <div class="skill-name">Rapid Prototyping</div>
+        <p class="skill-desc">CAD-to-fabrication workflows: 3D printing, topology optimisation, CNC machining, and laser cutting.</p>
+        <div class="skill-tags">
+          <span class="tag">Fusion 360</span>
+          <span class="tag">FreeCAD</span>
+          <span class="tag">3D Print</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">sys::ml</div>
+        <div class="skill-name">ML / AI</div>
+        <p class="skill-desc">Training and deploying neural networks for robotic control and real-time object detection. PyTorch and TensorFlow pipelines.</p>
+        <div class="skill-tags">
+          <span class="tag">PyTorch</span>
+          <span class="tag">TensorFlow</span>
+          <span class="tag">Deep Learning</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">sys::software</div>
+        <div class="skill-name">Software Engineering</div>
+        <p class="skill-desc">Real-time data processing, Linux and Windows systems, networking, and security auditing. C, Python, and C++ at the core.</p>
+        <div class="skill-tags">
+          <span class="tag">Python</span>
+          <span class="tag">C / C++</span>
+          <span class="tag">Linux</span>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
+<div class="divider"></div>
 
-        <section id="contact">
-            <h2>Contact Me</h2>
-            <a href="mailto:baptiste.lubranolavadera@gmail.com" class="contact-button">Send an Email</a>
-
-        </section>
-        <section id="cv">
-            <a href="CV_BaptisteLL.pdf" class="contact-button">Download my CV</a>
-        </section>
-
-        <section id="follow">
-    <h2>Follow Me</h2>
-    <div class="social-media-icons">
-        <a href="https://www.linkedin.com/in/baptiste-lubrano-lavadera-9233141a7" target="_blank" aria-label="LinkedIn">
-            <i class="fab fa-linkedin"></i>
-        </a>
-        <a href="https://www.youtube.com/@MrCat-Robotics" target="_blank" aria-label="Twitter">
-            <i class="fab fa-youtube"></i>
-        </a>
-        <a href="https://github.com/Mr-C4T" target="_blank" aria-label="GitHub">
-            <i class="fab fa-github"></i>
-        </a>
-        <a href="https://www.instagram.com/mr_c_4_t/" target="_blank" aria-label="Instagram">
-            <i class="fab fa-instagram"></i>
-        </a>
+<!-- WORK -->
+<section id="work">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">02 /</span>
+      <h2 class="section-title">Work</h2>
     </div>
+    <div class="project-list">
+
+      <a class="project-item" href="https://github.com/Mr-C4T/LeCyborg" target="_blank">
+        <span class="project-num">0x01</span>
+        <div>
+          <div class="project-name">LeCyborg</div>
+          <p class="project-desc">AI-powered third-arm prosthesis — awarded 13th place among the 30 winning teams of the LeRobot Worldwide Hackathon 2025 by Hugging Face.</p>
+        </div>
+        <span class="project-badge">🏆 HF Hackathon</span>
+      </a>
+
+      <a class="project-item" href="https://github.com/Mr-C4T/AB-SO-BOT" target="_blank">
+        <span class="project-num">0x02</span>
+        <div>
+          <div class="project-name">AB-SO-BOT</div>
+          <p class="project-desc">Aluminium chassis redesign for the SO-ARM100 open robot arm. Structural optimisation for improved rigidity and payload.</p>
+        </div>
+      </a>
+
+      <a class="project-item" href="#" target="_blank">
+        <span class="project-num">0x03</span>
+        <div>
+          <div class="project-name">7DOF Printed Manipulator</div>
+          <p class="project-desc">Low-cost 3D-printed robot arm framework designed as an open platform for AI robotics research. Modular and fully documented.</p>
+        </div>
+      </a>
+
+      <a class="project-item" href="https://mr-c4t.github.io/webxr/" target="_blank">
+        <span class="project-num">0x04</span>
+        <div>
+          <div class="project-name">VR Hand Tracking Dataset Tool</div>
+          <p class="project-desc">Browser-based WebXR application for capturing high-quality hand-tracking data from VR headsets, used to build manipulation datasets.</p>
+        </div>
+        <span class="project-badge">Live demo</span>
+      </a>
+
+      <a class="project-item" href="https://github.com/Mr-C4T/SynapsView/" target="_blank">
+        <span class="project-num">0x05</span>
+        <div>
+          <div class="project-name">SynapsView</div>
+          <p class="project-desc">Python script to visualise the internal architecture of scikit-learn neural networks — helpful for quick model introspection.</p>
+        </div>
+      </a>
+
+      <a class="project-item" href="https://www.thingiverse.com/thing:6759714" target="_blank">
+        <span class="project-num">0x06</span>
+        <div>
+          <div class="project-name">Quadruped Robot</div>
+          <p class="project-desc">Open-source quadruped with downloadable print-and-build files. Designed for accessibility and community-driven iteration.</p>
+        </div>
+        <span class="project-badge">Thingiverse</span>
+      </a>
+
+      <a class="project-item" href="https://www.instagram.com/mr_c_4_t/" target="_blank">
+        <span class="project-num">0x07</span>
+        <div>
+          <div class="project-name">Pi3 Cyberdeck</div>
+          <p class="project-desc">Custom handheld computing device built around a Raspberry Pi 3. Portable, hackable, and built entirely in-house.</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
 </section>
-    </main>
-    <script src="script.js"></script>
-    <script src="carousel.js"></script>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">03 /</span>
+      <h2 class="section-title">Contact</h2>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-block">
+        <div class="contact-label">Email</div>
+        <a class="contact-value" href="mailto:baptiste.lubranolavadera@gmail.com">baptiste.lubranolavadera@gmail.com</a>
+      </div>
+      <div class="contact-block">
+        <div class="contact-label">Resume</div>
+        <a class="contact-value" href="https://rl2.fr/CV_BaptisteLL.pdf" target="_blank">CV_BaptisteLL.pdf →</a>
+      </div>
+    </div>
+    <div class="social-row">
+      <a class="social-link" href="https://www.linkedin.com/in/baptiste-lubrano-lavadera-9233141a7" target="_blank">LinkedIn</a>
+      <a class="social-link" href="https://github.com/Mr-C4T" target="_blank">GitHub</a>
+      <a class="social-link" href="https://www.youtube.com/@MrCat-Robotics" target="_blank">YouTube</a>
+      <a class="social-link" href="https://www.instagram.com/mr_c_4_t/" target="_blank">Instagram</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<footer>
+  <div class="container" style="width:100%; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+    <span class="footer-copy">© 2025 Baptiste Lubrano Lavadera — Robot Learning Laboratory</span>
+    <span class="footer-copy" style="color: #2a2a44;">rl2.fr</span>
+  </div>
+</footer>
+
 </body>
 </html>
-

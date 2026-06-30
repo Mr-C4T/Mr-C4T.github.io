@@ -59,6 +59,7 @@
     text-decoration: none;
   }
 
+
   .nav-links {
     display: flex;
     gap: 2.5rem;
@@ -146,7 +147,7 @@
   .glitch {
     position: relative;
     display: inline-block;
-    animation: glitch-main 6s infinite;
+    animation: glitch-main 5s infinite;
   }
 
   .glitch::before,
@@ -163,14 +164,14 @@
     left: 2px;
     text-shadow: -1px 0 #39ff14;
     clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
-    animation: glitch-top 6s infinite;
+    animation: glitch-top 1s infinite;
   }
 
   .glitch::after {
     left: -2px;
     text-shadow: 1px 0 #ff2020;
     clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
-    animation: glitch-bot 6s infinite;
+    animation: glitch-bot 4s infinite;
   }
 
   @keyframes glitch-main {
@@ -600,13 +601,14 @@
 
 <!-- NAV -->
 <nav>
-  <a class="nav-logo" href="#">RL² / MrCAT</a>
+  <a class="nav-logo" href="#"><img src="logo.PNG" alt="RL2" style="height:40px; width:auto; display:block;"></a>
   <ul class="nav-links">
     <li><a href="#skills">Skills</a></li>
     <li><a href="#work">Work</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
 </nav>
+
 
 <!-- HERO -->
 <section id="hero">
@@ -650,7 +652,7 @@
         <span class="offer-num">—</span>
         <div class="offer-body">
           <span class="offer-name">Open hardware design</span>
-          <span class="offer-desc">PCB layout, embedded firmware, mechanical CAD, and 3D-printed structures. Full stack from schematic to assembled unit.</span>
+          <span class="offer-desc">PCB design, embedded firmware, mechanical CAD, and 3D-printed structures. Full stack from schematic to assembled unit.</span>
         </div>
       </div>
 
@@ -698,15 +700,15 @@
         <span class="project-num">0x02</span>
         <div>
           <div class="project-name">AB-SO-BOT</div>
-          <p class="project-desc">Aluminium chassis redesign for the SO-ARM100 open robot arm. Structural optimisation for improved rigidity and payload.</p>
+          <p class="project-desc">Modular aluminium body for the Standard Open Arm (SO100) robot.</p>
         </div>
       </a>
 
-      <a class="project-item" href="#" target="_blank">
+      <a class="project-item" href="https://github.com/TheRobotStudio/SO-ARM100/commits?author=Mr-C4T" target="_blank">
         <span class="project-num">0x03</span>
         <div>
-          <div class="project-name">7DOF Printed Manipulator</div>
-          <p class="project-desc">Low-cost 3D-printed robot arm framework designed as an open platform for AI robotics research. Modular and fully documented.</p>
+          <div class="project-name">SO-100 Contribution</div>
+          <p class="project-desc">3D-printed add-ons for SO100 robot arm.</p>
         </div>
       </a>
 
@@ -723,7 +725,7 @@
         <span class="project-num">0x05</span>
         <div>
           <div class="project-name">SynapsView</div>
-          <p class="project-desc">Python script to visualise the internal architecture of scikit-learn neural networks — helpful for quick model introspection.</p>
+          <p class="project-desc">Python script to visualise the internal architecture of scikit-learn neural networks.</p>
         </div>
       </a>
 
@@ -731,19 +733,11 @@
         <span class="project-num">0x06</span>
         <div>
           <div class="project-name">Quadruped Robot</div>
-          <p class="project-desc">Open-source quadruped with downloadable print-and-build files. Designed for accessibility and community-driven iteration.</p>
+          <p class="project-desc">Open-hardware quadruped with downloadable 3D print and laser cut files. Designed for accessibility and community-driven iteration.</p>
         </div>
         <span class="project-badge">Thingiverse</span>
       </a>
-
-      <a class="project-item" href="https://www.instagram.com/mr_c_4_t/" target="_blank">
-        <span class="project-num">0x07</span>
-        <div>
-          <div class="project-name">Pi3 Cyberdeck</div>
-          <p class="project-desc">Custom handheld computing device built around a Raspberry Pi 3. Portable, hackable, and built entirely in-house.</p>
-        </div>
-      </a>
-
+      
     </div>
   </div>
 </section>

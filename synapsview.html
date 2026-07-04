@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SynapsView — Neural Network Visualizer</title>
+<style>
+  :root{
+    --bg: #111111;
+    --panel: #171717;
+    --panel-line: #2a2a2a;
+    --green: #22e07a;
+    --yellow: #f4d000;
+    --white: #f2f2f2;
+    --muted: #8a8a8a;
+    --mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    --sans: 'Space Grotesk', 'Segoe UI', sans-serif;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--white);font-family:var(--sans);}
+
+  .app{display:flex;height:100vh;overflow:hidden;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:320px;flex-shrink:0;background:var(--panel);
+    border-right:1px solid var(--panel-line);
+    padding:22px 20px;overflow-y:auto;
+  }
+  .brand{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--yellow));display:inline-block;}
+  .brand h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.2px;}
+  .tagline{color:var(--muted);font-size:12.5px;margin:0 0 26px 0;line-height:1.5;}
+
+  .section-label{
+    font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--muted);margin:22px 0 10px;border-bottom:1px solid var(--panel-line);padding-bottom:6px;
+  }
+  .section-label:first-of-type{margin-top:0;}
+
+  label.field{display:block;margin-bottom:14px;}
+  label.field span{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-family:var(--mono);}
+  input[type=text], input[type=number]{
+    width:100%;background:#0d0d0d;border:1px solid var(--panel-line);color:var(--white);
+    padding:8px 10px;border-radius:6px;font-family:var(--mono);font-size:13px;outline:none;
+  }
+  input[type=text]:focus, input[type=number]:focus{border-color:var(--green);}
+  .row2{display:flex;gap:10px;}
+  .row2 label.field{flex:1;}
+
+  input[type=range]{width:100%;accent-color:var(--yellow);}
+  .rangeval{font-family:var(--mono);font-size:12px;color:var(--green);float:right;}
+
+  .dataset-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;margin-top:6px;}
+  .dataset-table th{color:var(--muted);text-align:center;font-weight:500;padding:3px 4px;border-bottom:1px solid var(--panel-line);}
+  .dataset-table td{text-align:center;padding:3px 4px;color:#ddd;}
+  .dataset-table tr:nth-child(odd){background:rgba(255,255,255,.02);}
+
+  button#trainBtn{
+    width:100%;margin-top:20px;padding:12px;border:none;border-radius:8px;cursor:pointer;
+    background:linear-gradient(135deg,var(--green),var(--yellow));
+    color:#0d0d0d;font-family:var(--mono);font-weight:700;font-size:14px;letter-spacing:.5px;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  button#trainBtn:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(34,224,122,.25);}
+  button#trainBtn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+
+  .checkline{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--muted);font-family:var(--mono);}
+
+  /* ---------- Main ---------- */
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
+
+  .topbar{
+    padding:16px 24px;border-bottom:1px solid var(--panel-line);display:flex;
+    align-items:center;justify-content:space-between;gap:20px;
+  }
+  .status{font-family:var(--mono);font-size:13px;color:var(--muted);display:flex;gap:22px;flex-wrap:wrap;}
+  .status b{color:var(--white);}
+  .status .loss{color:var(--yellow);}
+  .status .acc{color:var(--green);}
+
+  .legend{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:12px;color:var(--muted);}
+  .swatch{display:inline-flex;align-items:center;gap:6px;}
+  .swatch i{width:12px;height:12px;border-radius:50%;display:inline-block;}
+
+  .canvas-wrap{flex:1;position:relative;overflow:hidden;}
+  canvas{display:block;width:100%;height:100%;}
+
+  .epoch-badge{
+    position:absolute;top:14px;left:18px;font-family:var(--mono);font-size:12px;
+    color:var(--muted);background:rgba(0,0,0,.4);padding:4px 10px;border-radius:20px;
+    border:1px solid var(--panel-line);
+  }
+
+  .bottombar{
+    border-top:1px solid var(--panel-line);padding:16px 24px;display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap;
+  }
+  .metric-block h3{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:0 0 8px;}
+  .bignum{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--green);}
+  .bignum small{font-size:13px;color:var(--muted);font-weight:400;}
+
+  table.cm{border-collapse:collapse;font-family:var(--mono);font-size:12.5px;}
+  table.cm th, table.cm td{border:1px solid var(--panel-line);padding:6px 12px;text-align:center;}
+  table.cm th{color:var(--muted);font-weight:500;}
+  table.cm td.hit{color:var(--green);font-weight:700;}
+  table.cm td.miss{color:var(--yellow);font-weight:700;}
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:#333;border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <div class="sidebar">
+    <div class="brand"><span class="dot"></span><h1>SynapsView</h1></div>
+    <p class="tagline">Neural network visualizer — trains an MLP right in your browser and shows its weights lighting up: green for negative, yellow for positive.</p>
+
+    <div class="section-label">Architecture</div>
+    <label class="field">
+      <span>Hidden layers (comma-separated sizes)</span>
+      <input type="text" id="archInput" value="12,14,10">
+    </label>
+
+    <div class="section-label">Training</div>
+    <label class="field">
+      <span>Epochs <span class="rangeval" id="epochsVal">50</span></span>
+      <input type="range" id="epochsRange" min="5" max="400" value="50">
+    </label>
+    <label class="field">
+      <span>Learning rate <span class="rangeval" id="lrVal">0.50</span></span>
+      <input type="range" id="lrRange" min="1" max="150" value="50">
+    </label>
+
+    <div class="section-label">Data (XOR on 3 inputs)</div>
+    <table class="dataset-table" id="dataTable"></table>
+
+    <button id="trainBtn">▶ Train the network</button>
+    <div class="checkline"><input type="checkbox" id="verboseCheck"><label for="verboseCheck">Log weight details to console</label></div>
+  </div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <div class="status">
+        <span>epoch <b id="epochNow">0</b>/<b id="epochTotal">50</b></span>
+        <span>loss <b class="loss" id="lossNow">—</b></span>
+        <span>train score <b class="acc" id="accNow">—</b></span>
+      </div>
+      <div class="legend">
+        <span class="swatch"><i style="background:var(--green)"></i>-1</span>
+        <span class="swatch"><i style="background:var(--yellow)"></i>+1</span>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <div class="epoch-badge" id="badge">ready — hit “Train”</div>
+      <canvas id="net"></canvas>
+    </div>
+
+    <div class="bottombar">
+      <div class="metric-block">
+        <h3>Score (train)</h3>
+        <div class="bignum" id="scoreBig">—</div>
+      </div>
+      <div class="metric-block">
+        <h3>Confusion matrix (test)</h3>
+        <table class="cm" id="cmTable"><tr><td colspan="3" style="color:var(--muted)">train the model to see it</td></tr></table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   Data — reproduces the XOR-3 dataset from the original script
+   ============================================================ */
+const X_all = [[0,0,0],[0,1,0],[1,1,0],[1,0,0]];
+const y_all = [1,0,1,0];
+// deterministic split, matching train_test_split(test_size=0.25)
+const trainIdx = [0,2,3];
+const testIdx  = [1];
+const X_train = trainIdx.map(i=>X_all[i]);
+const y_train = trainIdx.map(i=>y_all[i]);
+const X_test  = testIdx.map(i=>X_all[i]);
+const y_test  = testIdx.map(i=>y_all[i]);
+
+function renderDataTable(){
+  const t = document.getElementById('dataTable');
+  let html = '<tr><th>x1</th><th>x2</th><th>x3</th><th>y</th><th>set</th></tr>';
+  X_all.forEach((row,i)=>{
+    const isTest = testIdx.includes(i);
+    html += `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${y_all[i]}</td><td style="color:${isTest?'var(--yellow)':'var(--green)'}">${isTest?'test':'train'}</td></tr>`;
+  });
+  t.innerHTML = html;
+}
+renderDataTable();
+
+/* ============================================================
+   Small hand-rolled MLP: forward + backprop (per-sample SGD)
+   tanh on hidden layers, sigmoid on the output
+   ============================================================ */
+function sigmoid(x){ return 1/(1+Math.exp(-x)); }
+function randInit(n){ return (Math.random()*2-1) * Math.sqrt(2/n); }
+
+class MLP{
+  constructor(sizes){
+    this.sizes = sizes; // e.g. [3,12,14,10,1]
+    this.W = []; this.b = [];
+    for(let l=0;l<sizes.length-1;l++){
+      const w = [];
+      for(let i=0;i<sizes[l];i++){
+        const row=[];
+        for(let j=0;j<sizes[l+1];j++) row.push(randInit(sizes[l]));
+        w.push(row);
+      }
+      this.W.push(w);
+      this.b.push(new Array(sizes[l+1]).fill(0));
+    }
+  }
+  forward(x){
+    const acts=[x];
+    for(let l=0;l<this.W.length;l++){
+      const out = new Array(this.sizes[l+1]).fill(0);
+      for(let j=0;j<this.sizes[l+1];j++){
+        let z = this.b[l][j];
+        for(let i=0;i<this.sizes[l];i++) z += acts[l][i]*this.W[l][i][j];
+        out[j] = (l===this.W.length-1) ? sigmoid(z) : Math.tanh(z);
+      }
+      acts.push(out);
+    }
+    return acts;
+  }
+  trainStep(x,yTarget,lr){
+    const acts = this.forward(x);
+    const L = this.W.length;
+    const deltas = new Array(L+1);
+    const outAct = acts[L];
+    deltas[L] = outAct.map((a,j)=> (a - yTarget[j]) * a*(1-a) );
+    for(let l=L-1;l>=1;l--){
+      const d = new Array(this.sizes[l]).fill(0);
+      for(let i=0;i<this.sizes[l];i++){
+        let s=0;
+        for(let j=0;j<this.sizes[l+1];j++) s += deltas[l+1][j]*this.W[l][i][j];
+        d[i] = s * (1-acts[l][i]*acts[l][i]); // dtanh
+      }
+      deltas[l]=d;
+    }
+    for(let l=0;l<L;l++){
+      for(let i=0;i<this.sizes[l];i++)
+        for(let j=0;j<this.sizes[l+1];j++)
+          this.W[l][i][j] -= lr*acts[l][i]*deltas[l+1][j];
+      for(let j=0;j<this.sizes[l+1];j++) this.b[l][j] -= lr*deltas[l+1][j];
+    }
+    const loss = outAct.reduce((s,a,j)=> s+(a-yTarget[j])**2,0)/outAct.length;
+    return loss;
+  }
+  predict(x){ return this.forward(x)[this.W.length][0] >= 0.5 ? 1 : 0; }
+}
+
+/* ============================================================
+   Canvas rendering — JS equivalent of synapsView()
+   ============================================================ */
+const canvas = document.getElementById('net');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas(){
+  const wrap = canvas.parentElement;
+  canvas.width  = wrap.clientWidth  * devicePixelRatio;
+  canvas.height = wrap.clientHeight * devicePixelRatio;
+  canvas.style.width = wrap.clientWidth+'px';
+  canvas.style.height = wrap.clientHeight+'px';
+}
+window.addEventListener('resize', ()=>{ resizeCanvas(); if(window.__mlp) drawNetwork(window.__mlp); });
+
+function weightColor(w, maxAbs){
+  const t = Math.max(-1, Math.min(1, w/(maxAbs||1))); // -1..1
+  const tt = (t+1)/2; // 0..1
+  // green (34,224,122) -> yellow (244,208,0)
+  const c1=[34,224,122], c2=[244,208,0];
+  const r = Math.round(c1[0]+(c2[0]-c1[0])*tt);
+  const g = Math.round(c1[1]+(c2[1]-c1[1])*tt);
+  const b = Math.round(c1[2]+(c2[2]-c1[2])*tt);
+  return `rgb(${r},${g},${b})`;
+}
+
+function drawNetwork(mlp, verbose=false){
+  resizeCanvas();
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const sizes = mlp.sizes;
+  const maxLayerSize = Math.max(...sizes);
+  const nLayers = sizes.length;
+
+  const marginX = W*0.08, marginY = H*0.10;
+  const stepX = (W - marginX*2) / (nLayers-1);
+  const stepY = (H - marginY*2) / Math.max(1,(maxLayerSize-1));
+
+  function pos(layerIdx, neuronIdx){
+    const count = sizes[layerIdx];
+    const offset = (maxLayerSize - count)/2;
+    const x = marginX + layerIdx*stepX;
+    const y = marginY + (neuronIdx+offset)*stepY;
+    return [x,y];
+  }
+
+  // max abs weight for color normalization (global cmap, like the original)
+  let maxAbs = 0.0001;
+  mlp.W.forEach(layer=>layer.forEach(row=>row.forEach(w=>{ if(Math.abs(w)>maxAbs) maxAbs=Math.abs(w); })));
+
+  // edges
+  for(let l=0;l<nLayers-1;l++){
+    for(let i=0;i<sizes[l];i++){
+      const [x1,y1] = pos(l,i);
+      for(let j=0;j<sizes[l+1];j++){
+        const [x2,y2] = pos(l+1,j);
+        const w = mlp.W[l][i][j];
+        ctx.strokeStyle = weightColor(w, maxAbs);
+        ctx.lineWidth = Math.max(0.6, Math.min(2.4, Math.abs(w)/maxAbs*2)) * devicePixelRatio;
+        ctx.globalAlpha = 0.85;
+        ctx.beginPath();
+        ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        if(verbose) console.log(`Weight ${j+1} of neuron ${i+1} (layer ${l+1}) = ${w.toFixed(4)}`);
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  // nodes
+  for(let l=0;l<nLayers;l++){
+    for(let i=0;i<sizes[l];i++){
+      const [x,y]=pos(l,i);
+      ctx.beginPath();
+      ctx.fillStyle = '#f2f2f2';
+      ctx.arc(x,y, 4.5*devicePixelRatio, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+}
+
+/* ============================================================
+   Training loop (async, so the UI never freezes)
+   ============================================================ */
+const trainBtn = document.getElementById('trainBtn');
+const epochsRange = document.getElementById('epochsRange');
+const lrRange = document.getElementById('lrRange');
+const epochsVal = document.getElementById('epochsVal');
+const lrVal = document.getElementById('lrVal');
+
+epochsRange.addEventListener('input', ()=> epochsVal.textContent = epochsRange.value);
+lrRange.addEventListener('input', ()=> lrVal.textContent = (lrRange.value/100).toFixed(2));
+
+function parseArch(){
+  return document.getElementById('archInput').value
+    .split(',').map(s=>parseInt(s.trim())).filter(n=>Number.isFinite(n) && n>0);
+}
+
+function confusionMatrix(yTrue,yPred){
+  const cm=[[0,0],[0,0]];
+  for(let k=0;k<yTrue.length;k++) cm[yTrue[k]][yPred[k]]++;
+  return cm;
+}
+
+function renderCM(cm){
+  const t = document.getElementById('cmTable');
+  t.innerHTML = `
+    <tr><th></th><th>pred. 0</th><th>pred. 1</th></tr>
+    <tr><th>true 0</th><td class="${cm[0][0]>=cm[0][1]?'hit':'miss'}">${cm[0][0]}</td><td class="miss">${cm[0][1]}</td></tr>
+    <tr><th>true 1</th><td class="miss">${cm[1][0]}</td><td class="${cm[1][1]>=cm[1][0]?'hit':'miss'}">${cm[1][1]}</td></tr>
+  `;
+}
+
+async function train(){
+  const hidden = parseArch();
+  if(hidden.length===0){ alert("Add at least one hidden layer, e.g. 12,14,10"); return; }
+  const epochs = parseInt(epochsRange.value);
+  const lr = parseInt(lrRange.value)/100;
+  const verbose = document.getElementById('verboseCheck').checked;
+
+  document.getElementById('epochTotal').textContent = epochs;
+  trainBtn.disabled = true;
+  trainBtn.textContent = '⏳ Training…';
+
+  const sizes = [3, ...hidden, 1];
+  const mlp = new MLP(sizes);
+  window.__mlp = mlp;
+  drawNetwork(mlp);
+
+  const yTargets = y_train.map(v=>[v]);
+
+  for(let e=1; e<=epochs; e++){
+    let lossSum=0;
+    for(let k=0;k<X_train.length;k++) lossSum += mlp.trainStep(X_train[k], yTargets[k], lr);
+    const loss = lossSum/X_train.length;
+
+    document.getElementById('epochNow').textContent = e;
+    document.getElementById('lossNow').textContent = loss.toFixed(4);
+    document.getElementById('badge').textContent = `training… epoch ${e}/${epochs}`;
+
+    if(e % Math.max(1,Math.floor(epochs/60))===0 || e===epochs){
+      drawNetwork(mlp, verbose && e===epochs);
+      await new Promise(r=>setTimeout(r,0));
+    }
+  }
+
+  // scoring
+  const trainPreds = X_train.map(x=>mlp.predict(x));
+  const testPreds  = X_test.map(x=>mlp.predict(x));
+  const trainAcc = trainPreds.filter((p,i)=>p===y_train[i]).length / y_train.length;
+
+  document.getElementById('accNow').textContent = (trainAcc*100).toFixed(1)+'%';
+  document.getElementById('scoreBig').innerHTML = (trainAcc*100).toFixed(1)+'<small> %</small>';
+  document.getElementById('badge').textContent = `done — ${epochs} epochs`;
+  renderCM(confusionMatrix(y_test, testPreds));
+
+  trainBtn.disabled = false;
+  trainBtn.textContent = '▶ Train the network';
+}
+
+trainBtn.addEventListener('click', train);
+
+// initial draw (untrained network) so something is visible on load
+window.addEventListener('load', ()=>{
+  const mlp = new MLP([3, ...parseArch(), 1]);
+  window.__mlp = mlp;
+  drawNetwork(mlp);
+});
+</script>
+</body>
+</html>

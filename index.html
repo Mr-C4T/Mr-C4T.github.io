@@ -368,15 +368,77 @@
     max-width: 580px;
   }
 
-  /* SKILLS (legacy, kept for safety) */
+  /* SKILLS + VIDEO SIDE-BY-SIDE (desktop) */
+  .skills-flex {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
+    grid-template-columns: 1fr 280px;
+    gap: 3rem;
+    align-items: start;
   }
+
+  @media (max-width: 820px) {
+    .skills-flex {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+    .video-frame { margin: 0 auto; }
+  }
+
+  /* PORTRAIT VIDEO */
+  .video-frame {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .video-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .video-label span { color: var(--cyan); }
+
+  .video-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-h);
+    background: var(--surface);
+    box-shadow: 0 0 0 1px var(--cyan-dim), 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .video-wrap video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .video-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    box-shadow: inset 0 0 40px rgba(57,255,20,0.06);
+    pointer-events: none;
+  }
+
+  .video-caption {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 1rem;
+    letter-spacing: 0.03em;
+  }
+
 
   .skill-card {
     background: var(--surface);
@@ -638,40 +700,53 @@
       <span class="section-tag">01 /</span>
       <h2 class="section-title">What I do</h2>
     </div>
-    <div class="offer-list">
+    
+    <div class="skills-flex">
+      <div class="offer-list">
 
-      <div class="offer-row">
-        <span class="offer-num">—</span>
-        <div class="offer-body">
-          <span class="offer-name">Physical AI integration</span>
-          <span class="offer-desc">Bring AI models into real hardware: robot arms, mobile platforms, embedded systems. From proof-of-concept to working prototype.</span>
+        <div class="offer-row">
+          <span class="offer-num">—</span>
+          <div class="offer-body">
+            <span class="offer-name">Physical AI integration</span>
+            <span class="offer-desc">Bring AI models into real hardware: robot arms, mobile platforms, embedded systems. From proof-of-concept to working prototype.</span>
+          </div>
         </div>
-      </div>
 
-      <div class="offer-row">
-        <span class="offer-num">—</span>
-        <div class="offer-body">
-          <span class="offer-name">Open hardware design</span>
-          <span class="offer-desc">PCB design, embedded firmware, mechanical CAD, and 3D-printed structures. Full stack from schematic to assembled unit.</span>
+        <div class="offer-row">
+          <span class="offer-num">—</span>
+          <div class="offer-body">
+            <span class="offer-name">Open hardware design</span>
+            <span class="offer-desc">PCB design, embedded firmware, mechanical CAD, and 3D-printed structures. Full stack from schematic to assembled unit.</span>
+          </div>
         </div>
-      </div>
 
-      <div class="offer-row">
-        <span class="offer-num">—</span>
-        <div class="offer-body">
-          <span class="offer-name">Robot learning pipelines</span>
-          <span class="offer-desc">Data collection, imitation learning, and deployment of manipulation policies on open-source robot platforms.</span>
+        <div class="offer-row">
+          <span class="offer-num">—</span>
+          <div class="offer-body">
+            <span class="offer-name">Robot learning pipelines</span>
+            <span class="offer-desc">Data collection, imitation learning, and deployment of manipulation policies on open-source robot platforms.</span>
+          </div>
         </div>
-      </div>
 
-      <div class="offer-row">
-        <span class="offer-num">—</span>
-        <div class="offer-body">
-          <span class="offer-name">Rapid prototyping & consulting</span>
-          <span class="offer-desc">Fast iteration on early-stage ideas. Technical scoping, architecture decisions, and hands-on builds for startups and research teams.</span>
+        <div class="offer-row">
+          <span class="offer-num">—</span>
+          <div class="offer-body">
+            <span class="offer-name">Rapid prototyping & consulting</span>
+            <span class="offer-desc">Fast iteration on early-stage ideas. Technical scoping, architecture decisions, and hands-on builds for startups and research teams.</span>
+          </div>
         </div>
-      </div>
 
+      </div>
+      <div class="video-frame">
+        <p class="video-label">LAB FOOTAGE / <span>ROBOT ON TASK</span></p>
+        <div class="video-wrap">
+          <video controls autoplay muted loop playsinline>
+            <source src="output.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <p class="video-caption">AI policy executing a manipulation task</p>
+      </div>
     </div>
   </div>
 </section>
@@ -687,65 +762,76 @@
     </div>
     <div class="project-list">
 
+      <a class="project-item" href="https://huggingface.co/spaces/lerobot/visualize_dataset?path=MrC4t%2Fbi_so_bag" target="_blank">
+        <span class="project-num">0x07</span>
+        <div>
+          <div class="project-name">Models and Datasets</div>
+          <p class="project-desc">Open models and datasets available on my Hugging Face profile. 🤗</p>
+        </div>
+        <span class="project-badge">huggingface</span>
+      </a>
+
       <a class="project-item" href="https://github.com/Mr-C4T/LeCyborg" target="_blank">
-        <span class="project-num">0x01</span>
+        <span class="project-num">0x06</span>
         <div>
           <div class="project-name">LeCyborg</div>
-          <p class="project-desc">AI-powered third-arm prosthesis — awarded 13th place among the 30 winning teams of the LeRobot Worldwide Hackathon 2025 by Hugging Face.</p>
+          <p class="project-desc">AI-powered third-arm prosthesis 🏆 Awarded 13th place among the 30 winning teams of the LeRobot Worldwide Hackathon 2025 by Hugging Face.</p>
         </div>
-        <span class="project-badge">🏆 HF Hackathon</span>
+        <span class="project-badge">github</span>
       </a>
 
       <a class="project-item" href="https://github.com/Mr-C4T/AB-SO-BOT" target="_blank">
-        <span class="project-num">0x02</span>
+        <span class="project-num">0x05</span>
         <div>
           <div class="project-name">AB-SO-BOT</div>
-          <p class="project-desc">Modular aluminium body for the Standard Open Arm (SO100) robot.</p>
+          <p class="project-desc">Modular Aluminium Body for the Standard Open Arm (SO100) robot.</p>
         </div>
+        <span class="project-badge">github</span>
       </a>
 
       <a class="project-item" href="https://github.com/TheRobotStudio/SO-ARM100/commits?author=Mr-C4T" target="_blank">
-        <span class="project-num">0x03</span>
+        <span class="project-num">0x04</span>
         <div>
           <div class="project-name">SO-100 Contribution</div>
           <p class="project-desc">3D-printed add-ons for SO100 robot arm.</p>
         </div>
+        <span class="project-badge">github</span>
       </a>
 
       <a class="project-item" href="https://www.thingiverse.com/NekoMaker/designs" target="_blank">
-        <span class="project-num">0x04</span>
+        <span class="project-num">0x03</span>
         <div>
           <div class="project-name">SO-101 Accessory</div>
           <p class="project-desc">3D-printed add-ons for SO100 and SO101 robot and more 3D projects... </p>
         </div>
-          <span class="project-badge">Thingiverse</span>
+          <span class="project-badge">thingiverse</span>
       </a>
 
       <a class="project-item" href="https://mr-c4t.github.io/webxr/" target="_blank">
-        <span class="project-num">0x05</span>
+        <span class="project-num">0x02</span>
         <div>
           <div class="project-name">VR Hand Tracking Dataset Tool</div>
           <p class="project-desc">Browser-based WebXR application for capturing high-quality hand-tracking data from VR headsets, used to build manipulation datasets.</p>
         </div>
-        <span class="project-badge">Live demo</span>
+        <span class="project-badge">live demo</span>
       </a>
 
       <a class="project-item" href="https://mr-c4t.github.io/synapsview.html" target="_blank">
-        <span class="project-num">0x06</span>
+        <span class="project-num">0x01</span>
         <div>
           <div class="project-name">SynapsView</div>
           <p class="project-desc">Visualise the internal architecture of neural networks.</p>
         </div>
-        <span class="project-badge">Live demo</span>
+        <span class="project-badge">live demo</span>
       </a>
 
       <a class="project-item" href="https://www.thingiverse.com/thing:6759714" target="_blank">
-        <span class="project-num">0x07</span>
+        <span class="project-num">0x00</span>
         <div>
           <div class="project-name">Quadruped Robot</div>
           <p class="project-desc">Open-hardware quadruped with downloadable 3D print and laser cut files.</p>
         </div>
-        <span class="project-badge">Thingiverse</span>
+        <span class="project-badge">thingiverse</span>
       </a>
       
     </div>
